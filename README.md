@@ -16,3 +16,6 @@ I will now leave you with a famous movie monologue:
 >Ironic. 
 >He could save others from death, but not himself.
 >-Chancellor Palpatine
+
+[Week 1 komentorivi](laskarit/viikko1/komentorivi.txt)
+[Week 1 gitlog](laskarit/viikko1/gitlog.txt)
