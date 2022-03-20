@@ -1,0 +1,122 @@
+commit 3d2a2703bd4a3c1e3643f72399c53b7ce855ed7d
+Author: saax <saax@ad.helsinki.fi>
+Date:   Sun Mar 20 12:27:22 2022 +0200
+
+    muutoksia
+
+ tiedostoja/file22 | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+
+commit de840b6df795efbb7eb0f6c32ff16c44dbc5da68
+Author: saax <saax@ad.helsinki.fi>
+Date:   Sun Mar 20 12:26:12 2022 +0200
+
+    muutoksia
+
+ tiedostoja/file1 | 0
+ tiedostoja/file2 | 0
+ 2 files changed, 0 insertions(+), 0 deletions(-)
+
+commit 616e52b5a06a04e766a31ef13fc0eee08264749b
+Author: saax <saax@ad.helsinki.fi>
+Date:   Sun Mar 20 12:21:30 2022 +0200
+
+    tiedostoja luotu
+
+ tiedostoja/file1 | 0
+ tiedostoja/file2 | 0
+ tiedostoja/file3 | 0
+ 3 files changed, 0 insertions(+), 0 deletions(-)
+
+commit a61d1d6eb348ee7f1804ff135107a190a820da80
+Author: saax <saax@ad.helsinki.fi>
+Date:   Tue Mar 15 12:49:05 2022 +0200
+
+    Muutoksia: eka ja kolmas
+
+ eka.txt    | 4 ++--
+ kolmas.txt | 4 +++-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+commit 44d75bb02081af5f5ec53fa61df0dea0a17b8208
+Author: saax <saax@ad.helsinki.fi>
+Date:   Tue Mar 15 12:40:52 2022 +0200
+
+    muutoksia
+
+ tiedosto.txt => eka.txt | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+
+commit 2d04cc621b8cbaf22fe33ede5868fb4a29f22d29
+Author: saax <saax@ad.helsinki.fi>
+Date:   Tue Mar 15 12:38:31 2022 +0200
+
+    toinen.txt poistettiin
+
+ toinen.txt | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit b19dd08646fd3ea23b7f8441f4ec016d78c5bde2
+Author: saax <saax@ad.helsinki.fi>
+Date:   Tue Mar 15 12:32:39 2022 +0200
+
+    muutoksi tiedostoon 2
+
+ tiedosto.txt | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+commit 76a5dc4f31369bb0370f31769ed0f8d43f09ffb0
+Author: saax <saax@ad.helsinki.fi>
+Date:   Tue Mar 15 12:30:02 2022 +0200
+
+    muutoksia tiedostoon
+
+ tiedosto.txt | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+commit f8e706311ece8b03daee8f1e5d924b1a40575347
+Author: saax <saax@ad.helsinki.fi>
+Date:   Tue Mar 15 12:07:55 2022 +0200
+
+    stuff luotu
+
+ stuff/new.txt | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+
+commit b8ccee86389cfafa08129bb615de426b77488aa4
+Author: saax <saax@ad.helsinki.fi>
+Date:   Tue Mar 15 12:04:33 2022 +0200
+
+    muutoksia
+
+ kolmas.txt | 1 +
+ toinen.txt | 1 +
+ 2 files changed, 2 insertions(+)
+
+commit 91f4d32abc69ff3dbb144f500f8e9a9c1b49e253
+Author: saax <saax@ad.helsinki.fi>
+Date:   Tue Mar 15 12:02:05 2022 +0200
+
+    kolmas luotu
+
+ kolmas.txt | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+
+commit cd53537aa2a2f1966a8e2da1716a88a2eeebd73e
+Author: saax <saax@ad.helsinki.fi>
+Date:   Tue Mar 15 11:50:45 2022 +0200
+
+    muutos ja lisäys
+
+ tiedosto.txt | 1 +
+ toinen.txt   | 0
+ 2 files changed, 1 insertion(+)
+
+commit 55c32b23cb187ef5192bd566697bd85ca8be0ddd
+Author: saax <saax@ad.helsinki.fi>
+Date:   Tue Mar 15 11:48:34 2022 +0200
+
+    tiedosto.txt luotu
+
+ tiedosto.txt | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
