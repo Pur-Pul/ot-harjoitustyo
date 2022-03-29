@@ -19,3 +19,6 @@ I will now leave you with a famous movie monologue:
 
 [Week 1 komentorivi](laskarit/viikko1/komentorivi.txt)  
 [Week 1 gitlog](laskarit/viikko1/gitlog.txt)  
+[Week 2 kattavuusraportti](laskarit/viikko2/CoverageReport.png)  
+[Työaikakirja](dokumentaatio/tyoaikakirja.md)  
+[Vaatimusmäärittely](dokumentaatio/vaatimusmaarittely.md)
