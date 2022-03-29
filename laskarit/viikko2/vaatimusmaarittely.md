@@ -18,4 +18,18 @@ The work environment consists of a sprite viewer, and a settings tab. Exporting 
 New projects can be created from scratch or from a template. Creating from template effectively means assigning the same basevalues to the new project as an old one. During the creation the user is also prompted to select a project name, which has to be unique. The left tab of the creation page lists all the previous projects. These can be opened by selecting them. Opening an old project or creating a new one loads in said project to the work environment.  
 
 ### Work environment
-In the work environment attributes can be changed by typing new values into the textboxes. The attributes affect the appearance and animated behaviour of the cloud. The sprite viewer shows the current state of the cloud sprite being worked at. If FPS is not set to 0 the viewer will be animated, otherwise it will only show the first frame. The settings tab consists of the editable attributes and the export button. The export button converts the cloud into an animated sprite sheet, which the user is then prompted to save using the computers filebrowser
+In the work environment attributes can be changed by typing new values into the textboxes. The attributes affect the appearance and animated behaviour of the cloud. The sprite viewer shows the current state of the cloud sprite being worked at. If FPS is not set to 0 the viewer will be animated, otherwise it will only show the first frame. The settings tab consists of the editable attributes and the export button. The export button converts the cloud into an animated sprite sheet, which the user is then prompted to save using the computers filebrowser.
+
+### Cloud generation algorithm
+Clouds are generated based on the set values for *Length* and *Height*. Because all clouds are unique, randomness will also be implemented into the algorithm. Each pixel will have a random chance to generate a neighboring pixel. Altough the clod will always reach the specified *Length* and *Height*.
+
+### Wind simulation
+The basic idea is that each pixel in the cloud is a node. Each node can have up to 4 bonds, which are the adjecent pixels. These bonds act as friction on the nodes, and the more bonds a node has, the more force is required to move them (With 4 bonds the pixel is fixed). Wind acts as a force on the nodes and will push them either left or right, depending on its value. The density attribute will affect the nodes windresistance. Less dense nodes are affected more by wind than the more dense ones.
+
+## Ideas for future implementation
+- Manual drawing of clouds and a zooming feature in the sprite viewer.
+- Allow importating projects.
+- Allow removal of old projects.
+- Allow selection colors by their hexvalues.
+- Allow transparent backgrounds.
+- Allow jumping between frames in the sprite viewer when FPS is set to 0.
