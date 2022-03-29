@@ -12,8 +12,8 @@ The user interface will feature two different pages. One for project creation an
 In the project creation page the user is prompted to either open a project or create a new one. After selecting either the work environment is loaded in.
 The work environment consists of a sprite viewer, and a settings tab. Exporting a project opens up the filebrowser, which prompts the user to select folder to save in.
 ### Drafts:
-![Draft of creation page](https://github.com/Pur-Pul/ot-harjoitustyo/blob/master/laskarit/viikko2/cloudpage1draft.png)
-![Draft of work environment](https://github.com/Pur-Pul/ot-harjoitustyo/blob/master/laskarit/viikko2/cloudpage2draft.png)
+![Draft of creation page](https://github.com/Pur-Pul/ot-harjoitustyo/blob/master/dokumentaatio/cloudpage1draft.png)
+![Draft of work environment](https://github.com/Pur-Pul/ot-harjoitustyo/blob/master/dokumentaatio/cloudpage2draft.png)
 ## Functionality
 ### Project Creation
 New projects can be created from scratch or from a template. Creating from template effectively means assigning the same basevalues to the new project as an old one. During the creation the user is also prompted to select a project name, which has to be unique. The left tab of the creation page lists all the previous projects. These can be opened by selecting them. Opening an old project or creating a new one loads in said project to the work environment.  
