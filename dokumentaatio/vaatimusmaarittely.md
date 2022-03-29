@@ -29,8 +29,8 @@ The basic idea is that each pixel in the cloud is a node. Each node can have up 
 
 ## Ideas for future implementation
 - Manual drawing of clouds and a zooming feature in the sprite viewer.
-- Allow importating projects.
+- Allow importing projects.
 - Allow removal of old projects.
-- Allow selection colors by their hexvalues.
+- Allow selection of colors by their hexvalues.
 - Allow transparent backgrounds.
 - Allow jumping between frames in the sprite viewer when FPS is set to 0.
