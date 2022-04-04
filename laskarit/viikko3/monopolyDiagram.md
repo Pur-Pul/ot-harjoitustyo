@@ -1,4 +1,4 @@
-'''mermaid
+```mermaid
   classDiagram
         Game "1" --> "2" Dice
         Game "1" --> "1" Board
@@ -7,4 +7,4 @@
         Square "1" --> "1" Square
         Player "1" --> "1" PlayerPiece
         PlayerPiece "*" --> "1" Square
-'''
+```
