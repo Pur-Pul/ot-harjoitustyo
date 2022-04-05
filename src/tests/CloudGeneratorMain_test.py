@@ -31,5 +31,11 @@ class TestGUI(unittest.TestCase):
         results = []
         for i in range(1, 5):
             temp = copy.copy(self.newGUI).createFrames(i, None)
-            results.append(len(temp[0], len(temp[1])))
+            temp2 = []
+            for b in temp[1]:
+                if b != None:
+                    temp2.append(b)
+                
+            temp[1] = temp2
+            results.append([len(temp[0]), len(temp[1])])
         self.assertEqual(results, [[1,0], [2, 1], [3, 2], [4, 3]])
