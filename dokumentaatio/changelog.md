@@ -10,5 +10,5 @@
 
 ## Week4
 
-- Random cloud generation algorithm created [GenerationAlgorithm.py](src/GenerationAlgorithm.py)
+- Random cloud generation algorithm created [GenerationAlgorithm.py](/src/GenerationAlgorithm.py)
 
