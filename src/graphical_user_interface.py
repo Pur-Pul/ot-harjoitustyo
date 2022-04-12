@@ -102,7 +102,7 @@ class GUI:
             buttons[-1].place(anchor='s', x=885, y=500)
         if page == 'editor_screen':
             buttons.append(tk.Button(frames[2],
-                                    command = self.draw_cloud,
+                                    command = lambda: self.draw_cloud(),
                                     text = 'Generate new cloud'))
             buttons[-1].place(anchor='s', relx=0.5, rely=0.5)
 
@@ -168,6 +168,7 @@ class GUI:
 
     def draw_cloud(self):
         table = self.table
+        table = []
         for _ in range(0, 15):
             table.append([None]*40)
         self.cloud = Node([6,11],table)
