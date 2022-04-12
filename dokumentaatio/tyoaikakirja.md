@@ -6,4 +6,5 @@ Programming languange: Python
 | 31.3. | 2    | Creation of basic GUI for the creation screen. |
 | 5.4.  | 4    | Turned GUI into a class and created tests for frame creation and the color palette |
 | 8.4.  | 3    | Created GenerationAlgorithm.py, which generates random clouds. |
-| Total | 14   | - |
+| 12.4. | 5    | Created user interface for the editor page and integrated the cloud generator into the editor page.
+| Total | 19   | - |

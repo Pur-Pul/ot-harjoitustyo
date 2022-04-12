@@ -11,4 +11,5 @@
 ## Week4
 
 - Random cloud generation algorithm created [GenerationAlgorithm.py](src/GenerationAlgorithm.py)
-
+- User interface for the editor page created.
+- Randomly generated clouds can now be generated directly in the user interface at the press of a button.
