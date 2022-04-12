@@ -30,3 +30,8 @@ The following commmand will generate a coverage report to the _htmlcov_ director
 ```bash
 poetry run invoke coverage-report
 ```
+
+Run pylint with:
+```bash
+poetry run invoke lint
+```
