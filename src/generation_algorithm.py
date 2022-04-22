@@ -1,4 +1,5 @@
 import random
+import sys
 #This class defines a signle node in the cloud to be generated. Each pixel is one node
 class Node:
     def __init__(self, coords, table, parent = None):
@@ -15,7 +16,9 @@ class Node:
         self.find_neighbors()
         self.create_node()
 
-    def find_neighbors(self):
+    def find_neighbors(self, rec = 1):
+        if rec == sys.getrecursionlimit()-100:
+            return
         #This function looks for neighboring nodes in the ajdecent spaces.
         #If a  new node is found,
         #it is saved as a neighbor and told to look for neighbors of it's own.
@@ -39,7 +42,7 @@ class Node:
             #print('pass', neighbors[n])
             if self.table[neighbor[0]][neighbor[1]]:
                 self.neighbors[str(neighbor)] = self.table[neighbor[0]][neighbor[1]]
-                self.table[neighbor[0]][neighbor[1]].find_neighbors()
+                self.table[neighbor[0]][neighbor[1]].find_neighbors(rec+1)
             else:
                 self.empty[next] = True
 
