@@ -10,6 +10,8 @@ Application is still under developement.
 [Changelog](dokumentaatio/changelog.md)  
 
 ## Installation  
+[Lastest Release](https://github.com/Pur-Pul/ot-harjoitustyo/releases/tag/first_release_v.0.1.0-alpha)  
+
 Install requirements with:  
 ```bash
 poetry install
