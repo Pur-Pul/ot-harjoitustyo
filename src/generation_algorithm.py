@@ -32,8 +32,8 @@ class Node:
 
         self.empty = [False, False, False, False]
         #print(coords, neighbors)
-        for next, neighbor in enumerate(neighbors):
-            in_range = (neighbors[next][0] <= limit[1] and
+        for neighbor_i, neighbor in enumerate(neighbors):
+            in_range = (neighbors[neighbor_i][0] <= limit[1] and
             neighbor[0] >= limit[0] and
             neighbor[1] <= limit[3] and
             neighbor[1] >= limit[2])
@@ -44,7 +44,7 @@ class Node:
                 self.neighbors[str(neighbor)] = self.table[neighbor[0]][neighbor[1]]
                 self.table[neighbor[0]][neighbor[1]].find_neighbors(rec+1)
             else:
-                self.empty[next] = True
+                self.empty[neighbor_i] = True
 
     def create_node(self):
         #This function creates a new node in one of the empty adjecent spaces.
@@ -103,26 +103,29 @@ class Node:
             new_coords = [self.coords[0],self.coords[1]+diff]
             self.neighbors[str(new_coords)] = Node(new_coords, self.table, self)
 
-
-if __name__ == "__main__": # pragma: no cover
-    table = []
-    for i in range(0, 20):
-        table.append([None]*70)
-    new_node = Node([(len(table)-1)//2,(len(table[0])-1)//2], table)
+def print_table(table): # pragma: no cover
     art = []
     for row_index, row in enumerate(table):
         art.append('')
-        for node_index, node in enumerate(row):
-            if node:
-                if len(node.neighbors) == 1:
-                    art[row_index]+='░░'
-                elif len(node.neighbors) == 2:
-                    art[row_index]+='▒▒'
-                elif len(node.neighbors) == 3:
-                    art[row_index]+='▓▓'
-                elif len(node.neighbors) == 4:
-                    art[row_index]+='██'
-            else:
+        for _, node in enumerate(row):
+            if not node:
                 art[row_index]+='  '
+                continue
+            if len(node.neighbors) <= 1:
+                art[row_index]+='░░'
+            elif len(node.neighbors) == 2:
+                art[row_index]+='▒▒'
+            elif len(node.neighbors) == 3:
+                art[row_index]+='▓▓'
+            elif len(node.neighbors) == 4:
+                art[row_index]+='██'
+
     for i in art:
         print(i)
+
+if __name__ == "__main__": # pragma: no cover
+    main_table = []
+    for _ in range(0, 20):
+        main_table.append([None]*70)
+    new_node = Node([(len(main_table)-1)//2,(len(main_table[0])-1)//2], main_table)
+    print_table(main_table)

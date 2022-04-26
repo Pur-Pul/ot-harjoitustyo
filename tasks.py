@@ -2,7 +2,7 @@ from invoke import task
 
 @task
 def start(ctx):
-    ctx.run("python3 src/CloudGeneratorMain.py")
+    ctx.run("python3 src/cloud_generator_main.py")
 
 @task
 def test(ctx):
