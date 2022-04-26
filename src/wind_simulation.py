@@ -20,15 +20,6 @@ class simulator:
                     down_free = empty[1]
                     left_free = empty[2]
                     right_free = empty[3]
-                    '''
-                    if row_i == 0:
-                        up_free = False
-                    if row_i == len(old_table)-1:
-                        down_free = False
-                    if col_i == 0:
-                        left_free = False
-                    if col_i == len(row)-1:
-                        right_free = False'''
                     
                     y_move = 0
                     x_move = 0
@@ -53,18 +44,6 @@ class simulator:
                     if (not left_side and x_dif < y_dif) or ( not up_side and not left_side and x_dif == y_dif):
                         y_move = -1
                     
-
-                    '''
-                    if not up_free and not down_free:
-                        x_move = -1
-                    elif left_free and right_free:
-                        x_move = 1
-                    elif up_free and left_free and not right_free and row_i<len(old_table)/2:
-                        y_move = -1
-                    elif down_free and left_free and not right_free and row_i>=len(old_table)/2:
-                        y_move = 1
-                    else:
-                        x_move = -1'''
 
 
                     new_y = row_i + y_move
@@ -102,19 +81,26 @@ def print_table(table):
 
 if __name__ == "__main__": # pragma: no cover
     table_1 = []
-    for i in range(0, 20):
-        table_1.append([None]*50)
+    frames=[]
+    n = 13
+    m = 20
+    for i in range(0, n):
+        table_1.append([None]*m)
     new_node = Node([(len(table_1)-1)//2,(len(table_1[0])-1)//2], table_1)
     
+    frames.append(copy.copy(table_1))
     print_table(table_1)
-    for _ in range(0, 5000):
+    
+    for _ in range(0, 10):
         new_table = []
         for i in range(0, len(table_1)):
             new_table.append(copy.copy(table_1[i]))
         new_simulation = simulator(new_table)
         table_1 = new_simulation.simulate()
         print_table(table_1)
-    #print_table(table_1)
+        frames.append(copy.copy(table_1))
+    print_table(frames[0])
+    print_table(frames[-1])
     
 
 

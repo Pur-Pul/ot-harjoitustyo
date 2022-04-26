@@ -7,5 +7,6 @@ Programming languange: Python
 | 5.4.  | 4    | Turned GUI into a class and created tests for frame creation and the color palette |
 | 8.4.  | 3    | Created GenerationAlgorithm.py, which generates random clouds. |
 | 12.4. | 5    | Created user interface for the editor page and integrated the cloud generator into the editor page.
-| 22.4  | 4    | Created wind_simulation.py, which rotates the cloud as if wind was blowing on it  
-| Total | 23   | - |
+| 22.4. | 4    | Created wind_simulation.py, which rotates the cloud as if wind was blowing on it  
+| 25.4. | 3    | Animation feature added to GUI.
+| Total | 27   | - |

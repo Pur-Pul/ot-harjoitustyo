@@ -17,4 +17,5 @@
 ## Week5
 
 - Wind simulation algorithm created [wind_simulation.py](/src/wind_simulation.py)  
+- Animation feature added to GUI
 

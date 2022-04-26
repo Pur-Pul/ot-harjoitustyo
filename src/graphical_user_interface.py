@@ -1,5 +1,10 @@
 import tkinter as tk
 from generation_algorithm import Node
+from wind_simulation import simulator
+from wind_simulation import print_table
+
+import copy
+import time
 class GUI:
     def __init__(self, color_palette):
         #Color values
@@ -101,10 +106,16 @@ class GUI:
                                     text = 'create'))
             buttons[-1].place(anchor='s', x=885, y=500)
         if page == 'editor_screen':
+            #Create button
             buttons.append(tk.Button(frames[2],
                                     command = lambda: self.draw_cloud(),
                                     text = 'Generate new cloud'))
             buttons[-1].place(anchor='s', relx=0.5, rely=0.5)
+            #Animate button
+            buttons.append(tk.Button(frames[2],
+                                    command = lambda: self.animate_cloud(20),
+                                    text = 'Animate cloud'))
+            buttons[-1].place(anchor='s', relx=0.5, rely=0.6)
 
         return buttons
 
@@ -124,6 +135,7 @@ class GUI:
         pages = self.pages
         #creation of main window, frame and border
         window = tk.Tk()
+        self.window = window
         window.geometry(str(window_size)+'x'+str(window_size))
         pages['creation_screen']['main_frame'] = tk.Frame(window,
                                                         bg=self.bg_color,
@@ -166,19 +178,60 @@ class GUI:
             print('newtext', text)
             textbox.insert(0, text)
 
-    def draw_cloud(self):
-        table = self.table
-        table = []
-        for _ in range(0, 15):
-            table.append([None]*40)
-        self.cloud = Node([6,11],table)
+    def animate_cloud(self, frame_count):
+        original = self.table
+        frame_1 = copy.copy(original)
+        window = self.window
+        
+        for _ in range(0, frame_count):
+            new_table = []
+            for i in range(0, len(frame_1)):
+                new_table.append(copy.copy(frame_1[i]))
+            
+            new_simulation = simulator(new_table)
+            frame_1 = new_simulation.simulate()
+            
+            self.draw_cloud(frame_1)
+            window.update()
+            time.sleep(0.01)
+        self.draw_cloud(original)
+        window.update()
+            
+            
+
+    
+    def draw_cloud(self, table=None):
+        if not table:
+            
+            table = []
+            for _ in range(0, 15):
+                table.append([None]*40)
+            self.cloud = Node([6,11],table)
         canvas = self.pages['editor_screen']['canvas'][-1]
         canvas.delete("all")
         for row_index, row in enumerate(table):
             for node_index, node in enumerate(row):
                 if node:
+                    outline='white'
+                    fill='white'
+                    if len(node.neighbors) == 1:
+                        outline="#A9A9A9"
+                        fill="#A9A9A9"
+                    elif len(node.neighbors) == 2:
+                        outline="#D3D3D3"
+                        fill="#D3D3D3"
+                    elif len(node.neighbors) == 3:
+                        outline="#E5E4E2"
+                        fill="#E5E4E2"
+                    elif len(node.neighbors) == 4:
+                        outline="white"
+                        fill="white"
                     polygon = canvas.create_rectangle( # pylint: disable=unused-variable
-                    (node_index+1)*10, (row_index+1)*10, (node_index+2)*10, (row_index+2)*10,
-                    outline="white",
-                    fill="white")
+                    (node_index+1)*10, (row_index+1)*10, (node_index+2)*10, (row_index+2)*10, outline=outline,
+                    fill=fill)
+
+                    
+
+                    
+        self.table = table
                     
