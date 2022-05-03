@@ -19,3 +19,9 @@
 - Wind simulation algorithm created [wind_simulation.py](/src/wind_simulation.py)  
 - Animation feature added to GUI
 - First GitHub release
+
+## Week6
+
+- Database created and implmented [database.py](/src/database.py)
+- Project names and data can now be saved and loaded from the database.  
+  *Projects are loaded by creating a new project with the same name as a previous one*

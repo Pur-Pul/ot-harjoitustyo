@@ -3,15 +3,22 @@ import copy
 import time
 from generation_algorithm import Node
 from wind_simulation import WindSimulator
+from database import Project, get_project_names
 
 class GUI:
     def __init__(self, color_palette):
-        #Color values
+        """Assigns the base values for the class variables.
+
+        Args:
+            color_palette: This is the color palette used in the user interface
+        """
         self.palette = color_palette
         self.done=False
         self.table = []
         self.cloud = None
         self.window = None
+        self.project_name = None
+        self.current_project = None
 
         self.pages = {'creation_screen' :
         {'frame_count' : 2,
@@ -21,6 +28,14 @@ class GUI:
             'main_frame' : None}}
 
     def create_frames(self, page):
+        """Creates the frames for the specified page.
+
+        Args:
+            page: This is the parent page of the frames to be generated.
+
+        Returns:
+            A list object containing the generated frames and borders.
+        """
         frame_count = self.pages[page]['frame_count']
         main_frame = self.pages[page]['main_frame']
         #creation of frames and borders
@@ -42,6 +57,14 @@ class GUI:
         return [frames,borders]
 
     def create_labels(self, page):
+        """Generates the labels for the specified page.
+
+        Args:
+            page: The parent page of the labels
+
+        Returns:
+            labels: A list containg all the generated labels
+        """
         frames = self.pages[page]['frames']
         #Creation of labels
         labels=[]
@@ -51,10 +74,22 @@ class GUI:
                 label = tk.Label(frame,
                                 fg = self.palette['bg_tb_color'],
                                 bg=self.palette['bg_color'],
-                                text = 'Projects',
-                                font=('calibri', 20))
+                                text = 'Recent projects:',
+                                font=('calibri', 16))
                 label.place(anchor='n',relx=0.5, rely=0)
                 labels[i].append(label)
+
+                project_names = get_project_names()
+                for name_i, name in enumerate(project_names):
+                    label_y=float(name_i+2)/30
+                    label = tk.Label(frame,
+                                fg = self.palette['bg_tb_color'],
+                                bg=self.palette['bg_color'],
+                                text = name,
+                                font=('calibri', 15))
+                    label.place(anchor='n',relx=0.5, rely=label_y)
+                    labels[i].append(label)
+
             if i == 1 and page == 'creation_screen':
                 label = tk.Label(frame,
                                 fg = self.palette['bg_tb_color'],
@@ -66,12 +101,19 @@ class GUI:
         return labels
 
     def create_textboxes(self, page):
+        """Generates the entry/textboxes for the specified page.
+
+        Args:
+            page: The parent page of the generated textboxes.
+
+        Returns:
+            textboxes: a list containing all the generated textboxes.
+        """
         frames = self.pages[page]['frames']
         #Creation of textbox
         textboxes=[]
         if page == 'creation_screen':
             for i, frame in enumerate(frames):
-                textboxes.append([])
                 if i == 1:
                     strv = tk.StringVar(value = 'Enter name of project...')
                     textbox = tk.Entry(frame,
@@ -90,14 +132,22 @@ class GUI:
                     mode,
                     strv=strv: self.clear_textbox(textbox))
                     textbox.place( anchor='s', x=885, y=400)
-                    textboxes[i].append(textbox)
+                    textboxes.append(textbox)
         return textboxes
     def create_buttons(self, page):
+        """Generates buttons for the specified page.
+
+        Args:
+            page: The parent page of the buttons to be generated.
+
+        Returns:
+            buttons: a list containing all the generated buttons.
+        """
         frames = self.pages[page]['frames']
         buttons = []
         if page == 'creation_screen':
             buttons.append(tk.Button(frames[1],
-            command = lambda: self.show('editor_screen'),
+            command = lambda: self.save_project(self.pages[page]['textboxes'][0].get()),
             text = 'create'))
             buttons[-1].place(anchor='s', x=885, y=500)
         if page == 'editor_screen':
@@ -111,11 +161,23 @@ class GUI:
             command = lambda: self.animate_cloud(75),
             text = 'Animate cloud'))
             buttons[-1].place(anchor='s', relx=0.5, rely=0.6)
+            #Save project to database
+            buttons.append(tk.Button(frames[2],
+            command = lambda: self.save_project(),
+            text = 'Save project'))
+            buttons[-1].place(anchor='s', relx=0.5, rely=0.7)
 
         return buttons
 
     def create_canvas(self, page):
-        #This is the canvas where the cloud is drawn.
+        """Generates the canvas, which is used to draw the clouds on.
+
+        Args:
+            page: The parent page of the generated canvas.
+
+        Returns:
+            canvas: a list containing all the generated canvases.
+        """
         frames = self.pages[page]['frames']
         canvas = []
         if page == 'editor_screen':
@@ -127,7 +189,14 @@ class GUI:
         return canvas
 
     def create_gui(self, window_size):
-        #creation of main window, frame and border
+        """creation of main window, frame and border
+
+        Args:
+            window_size: The size of the window to be generated.
+
+        Returns:
+            _type_: _description_
+        """
         self.window = tk.Tk()
         self.window.geometry(str(window_size*2)+'x'+str(window_size))
         self.pages['creation_screen']['main_frame'] = tk.Frame(self.window,
@@ -152,20 +221,79 @@ class GUI:
         self.pages['creation_screen']['main_frame'].lift()
         return self.window
 
+    def save_project(self, name=None):
+        """This function handles the saving of the project to the database.
+        As well as loading previously created projects from the database.
+
+        Args:
+            name (_type_, optional): This variable is name of the project to save.
+            If no name is given, the function uses the stored project object. Defaults to None.
+        """
+        if name:
+            print(name)
+            self.project_name = name
+            self.current_project = Project(name)
+            if self.current_project.table:
+                self.table = self.reconstruct_table(self.current_project.table)
+                self.draw_cloud(self.table)
+            self.show('editor_screen')
+        else:
+            self.current_project.table = self.table
+            self.current_project.table_height = len(self.table)
+            self.current_project.table_width = len(self.table[0])
+            self.current_project.save_project_data()
+
+    def reconstruct_table(self, table):
+        """This function reconstructs a cloud table from the table stored in the database.
+
+        Args:
+            table: This is the table taken from the database.
+            Nodes are represented as the number 1 in this table.
+
+        Returns:
+            a cloud table: This table has node objects in the place the 1's in the previous table.
+        """
+        height = len(table)
+        width = len(table[0])
+        new_table = []
+        for _ in range(0, height):
+            new_table.append([None]*width)
+
+        for row_i, row in enumerate(table):
+            for col_i, col in enumerate(row):
+                if col:
+                    col = Node([row_i,col_i],new_table,manual=True)
+                    col.find_neighbors()
+                new_table[row_i][col_i] = col
+        return new_table
+
     def show(self, page):
-        #Lifts the specified page to the front.
+        """Lifts the specified page to the front.
+
+        Args:
+            page: The page to lift.
+        """
         self.pages[page]['main_frame'].lift()
     def clear_textbox(self, textbox):
+        """This function clears the textbox of the preset text the first time it is triggered.
+
+        Args:
+            textbox: The textbox to clear.
+        """
         text = textbox.get()
-        print('here')
         if 'Enter name of project...' in text and not self.done:
             self.done=True
             textbox.delete(0, 'end')
             text = text.replace('Enter name of project...','')
-            print('newtext', text)
             textbox.insert(0, text)
 
     def animate_cloud(self, frame_count):
+        """This function animates the cloud
+        by switching between a specified number frames generated by the WindSimulator class.
+
+        Args:
+            frame_count: the number of frames to be used in the animation.
+        """
         original = self.table
         frame_1 = copy.copy(original)
         for _ in range(0, frame_count):
@@ -181,6 +309,13 @@ class GUI:
         self.window.update()
 
     def draw_cloud(self, table=None):
+        """Generates a cloud using the Node class and draws it onto the previously generated canvas.
+
+        Args:
+            table (_type_, optional): If a cloud table is given,
+            the function draws the specified cloud onto the canvas instead of generating a new one.
+            Defaults to None.
+        """
         if not table:
             table=[]
             for _ in range(0,15):

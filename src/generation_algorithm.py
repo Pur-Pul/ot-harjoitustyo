@@ -2,7 +2,20 @@ import random
 import sys
 #This class defines a signle node in the cloud to be generated. Each pixel is one node
 class Node:
-    def __init__(self, coords, table, parent = None):
+    def __init__(self, coords, table, parent = None, manual = False):
+        """Assigns base values for the class variables.
+
+        Args:
+            coords: This is the coordinates for the node in the table.
+
+            table: The table the cloud is generated into.
+
+            parent (_type_, optional): The partent node of the current node. Defaults to None.
+
+            manual (bool, optional): If this is True, nodes will manually be place into the table,
+            which means that there will be no randomly placed nodes.
+            This is used to generate the tables that are read from the database. Defaults to False.
+        """
         self.coords = coords
         self.limit = [0, len(table)-1, 0, len(table[0])-1] #[up, down, left right]
         self.table = table
@@ -13,15 +26,22 @@ class Node:
         self.empty = []
         if parent:
             self.neighbors[str(parent.coords)] = parent
-        self.find_neighbors()
-        self.create_node()
+        if not manual:
+            self.find_neighbors()
+            self.create_node()
 
     def find_neighbors(self, rec = 1):
+        """This function looks for neighboring nodes in the adjecent spaces.
+        If a new node is found,
+        it is saved as a neighbor and told to look for neighbors of it's own.
+
+        Args:
+            rec: This variable keeps track of the current recursion depth.
+            If it gets within 100 recursions from the recursion limit,
+            The recursion will stop. Defaults to 1.
+        """
         if rec == sys.getrecursionlimit()-100:
             return
-        #This function looks for neighboring nodes in the ajdecent spaces.
-        #If a  new node is found,
-        #it is saved as a neighbor and told to look for neighbors of it's own.
         coords = self.coords
         limit = self.limit
         up = [coords[0]-1, coords[1]] # pylint: disable=invalid-name
@@ -47,9 +67,10 @@ class Node:
                 self.empty[neighbor_i] = True
 
     def create_node(self):
-        #This function creates a new node in one of the empty adjecent spaces.
-        #Wether a node is created or not
-        #is determined by the current node's distance to the limit and random.
+        """This function creates a new node in one of the empty adjecent spaces of the current node.
+        Wether a node is created or not,
+        is determined by the current node's distance to the limit and randomness.
+        """
         middle_y = -1 * (-self.limit[1]//2)
         middle_x = -1 * (-self.limit[3]//2)
         y_dis = 0

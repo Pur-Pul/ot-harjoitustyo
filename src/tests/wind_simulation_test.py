@@ -1,7 +1,6 @@
 import unittest
 from wind_simulation import WindSimulator
 from generation_algorithm import Node
-import copy
 
 class Test_WindSimulator(unittest.TestCase):
     def setUp(self):
@@ -9,10 +8,11 @@ class Test_WindSimulator(unittest.TestCase):
         for _ in range(0, 20):
             self.table.append([None]*40)
         self.node = Node([11, 21],self.table)
+    
     def test_the_nodes_in_the_new_table_know_their_new_neighbors(self):
         sim = WindSimulator(self.table)
         self.table = sim.simulate()
-        print(self.table)
+        #print(self.table)
         test_table=[]
         for _ in range(0, 20):
             test_table.append([None]*40)

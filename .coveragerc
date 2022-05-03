@@ -1,3 +1,3 @@
 [run]
 source = src
-omit = src/**/__init__.py, src/tests/**
+omit = src/**/__init__.py, src/tests/**, src/graphical_user_interface.py, src/cloud_generator_main.py

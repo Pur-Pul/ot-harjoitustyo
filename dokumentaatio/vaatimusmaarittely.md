@@ -3,10 +3,10 @@
 ## The Purpose of The Application
 The application will use simulated physics to generate pixelart clouds. Said clouds will be animated and can be exported as a spritesheet. Specific values can be controlled to alter the appearance and behaviour of the clouds.
 
-## User types
+## User types "Done"
 There is only one type of user, which is normal user. There is no need for other user types, as the program will not feature a user hierarchy.
 
-## User interface
+## User interface "Done"
 The user interface will feature two different pages. One for project creation and on for the work environment. 
 
 In the project creation page the user is prompted to either open a project or create a new one. After selecting either the work environment is loaded in.
@@ -21,10 +21,10 @@ New projects can be created from scratch or from a template. Creating from templ
 ### Work environment
 In the work environment attributes can be changed by typing new values into the textboxes. The attributes affect the appearance and animated behaviour of the cloud. The sprite viewer shows the current state of the cloud sprite being worked at. If FPS is not set to 0 the viewer will be animated, otherwise it will only show the first frame. The settings tab consists of the editable attributes and the export button. The export button converts the cloud into an animated sprite sheet, which the user is then prompted to save using the computers filebrowser.
 
-### Cloud generation algorithm
+### Cloud generation algorithm "Done"
 Clouds are generated based on the set values for *Length* and *Height*. Because all clouds are unique, randomness will also be implemented into the algorithm. Each pixel will have a random chance to generate a neighboring pixel. Altough the clod will always reach the specified *Length* and *Height*.
 
-### Wind simulation
+### Wind simulation "Done"
 The basic idea is that each pixel in the cloud is a node. Each node can have up to 4 bonds, which are the adjecent pixels. These bonds act as friction on the nodes, and the more bonds a node has, the more force is required to move them (With 4 bonds the pixel is fixed). Wind acts as a force on the nodes and will push them either left or right, depending on its value. The density attribute will affect the nodes windresistance. Less dense nodes are affected more by wind than the more dense ones.
 
 ## Ideas for future implementation
