@@ -8,6 +8,7 @@ Application is still under developement.
 [Työaikakirja](dokumentaatio/tyoaikakirja.md)  
 [Vaatimusmäärittely](dokumentaatio/vaatimusmaarittely.md)  
 [Changelog](dokumentaatio/changelog.md)  
+[Architecture](dokumentaatio/arkkitehtuuri.md)
 
 ## Installation  
 [Lastest Release](https://github.com/Pur-Pul/ot-harjoitustyo/releases/tag/first_release_v.0.1.0-alpha)  
