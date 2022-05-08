@@ -94,21 +94,22 @@ class Project:
         """
         data = self.cur.execute("""SELECT * FROM project_data WHERE id=?""",
         (self.id,)).fetchone()
-        self.table_width = data[1]
-        self.table_height = data[2]
-        self.frame_count = data[3]
+        if data:
+            self.table_width = data[1]
+            self.table_height = data[2]
+            self.frame_count = data[3]
 
-        new_table = []
-        for _ in range(0, self.table_height):
-            new_table.append([None]*self.table_width)
+            new_table = []
+            for _ in range(0, self.table_height):
+                new_table.append([None]*self.table_width)
 
-        rows = self.cur.execute("""SELECT * FROM cloud WHERE id=?""",
-        (self.id,)).fetchall()
-        for row in rows:
-            if not row[3]:
-                continue
-            new_table[row[1]][row[2]] = row[3]
-        self.table = new_table
+            rows = self.cur.execute("""SELECT * FROM cloud WHERE id=?""",
+            (self.id,)).fetchall()
+            for row in rows:
+                if not row[3]:
+                    continue
+                new_table[row[1]][row[2]] = row[3]
+            self.table = new_table
 
 def get_project_names():
     """This funtion retrieves all the names of the projects

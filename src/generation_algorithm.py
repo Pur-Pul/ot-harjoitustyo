@@ -2,7 +2,7 @@ import random
 import sys
 #This class defines a signle node in the cloud to be generated. Each pixel is one node
 class Node:
-    def __init__(self, coords, table, parent = None, manual = False):
+    def __init__(self, coords, table, parent = None, manual = False, rec = 1):
         """Assigns base values for the class variables.
 
         Args:
@@ -16,6 +16,7 @@ class Node:
             which means that there will be no randomly placed nodes.
             This is used to generate the tables that are read from the database. Defaults to False.
         """
+        self.rec = rec
         self.coords = coords
         self.limit = [0, len(table)-1, 0, len(table[0])-1] #[up, down, left right]
         self.table = table
@@ -40,7 +41,9 @@ class Node:
             If it gets within 100 recursions from the recursion limit,
             The recursion will stop. Defaults to 1.
         """
-        if rec == sys.getrecursionlimit()-100:
+        if rec == 1:
+            rec = self.rec
+        if rec >= sys.getrecursionlimit()-500:
             return
         coords = self.coords
         limit = self.limit
@@ -96,20 +99,10 @@ class Node:
                 and random.randrange(0, x_dis+1) < x_dis
                 and random.randrange(0, y_dis+1) < y_dis):
                     x_create = True
-        if y_create and (self.empty[0] or self.empty[1]):
-            ind = random.randrange(0, 2)
-            while not self.empty[ind]:
-                if ind == 0:
-                    ind = 1
-                else:
-                    ind = 0
-            if ind == 0:
-                diff = -1
-            else:
-                diff = 1
-            new_coords = [self.coords[0]+diff,self.coords[1]]
-            self.neighbors[str(new_coords)] = Node(new_coords, self.table, self)
 
+        if self.rec >= sys.getrecursionlimit()-700:
+            y_create = False
+            x_create = False
         if x_create and (self.empty[2] or self.empty[3]):
             ind = random.randrange(2,4)
             while not self.empty[ind]:
@@ -122,7 +115,22 @@ class Node:
             else:
                 diff = 1
             new_coords = [self.coords[0],self.coords[1]+diff]
-            self.neighbors[str(new_coords)] = Node(new_coords, self.table, self)
+            self.neighbors[str(new_coords)] = Node(new_coords, self.table, self, rec = self.rec+1)
+        if y_create and (self.empty[0] or self.empty[1]):
+            ind = random.randrange(0, 2)
+            while not self.empty[ind]:
+                if ind == 0:
+                    ind = 1
+                else:
+                    ind = 0
+            if ind == 0:
+                diff = -1
+            else:
+                diff = 1
+            new_coords = [self.coords[0]+diff,self.coords[1]]
+            self.neighbors[str(new_coords)] = Node(new_coords, self.table, self, rec = self.rec+1)
+
+        
 
 def print_table(table): # pragma: no cover
     art = []
@@ -146,7 +154,7 @@ def print_table(table): # pragma: no cover
 
 if __name__ == "__main__": # pragma: no cover
     main_table = []
-    for _ in range(0, 20):
-        main_table.append([None]*70)
+    for _ in range(0, 50):
+        main_table.append([None]*50)
     new_node = Node([(len(main_table)-1)//2,(len(main_table[0])-1)//2], main_table)
     print_table(main_table)
