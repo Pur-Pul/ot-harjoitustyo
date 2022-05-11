@@ -395,14 +395,14 @@ class GUI:
             self.canvas_frames.clear()
 
         for i in range(0, frame_count):
-            canvas.pack_forget()
+            
             new_table = []
             if self.frame_update:
                 for row in frame_1:
                     new_table.append(copy.copy(row))
                 new_simulation = WindSimulator(new_table)
                 frame_1 = new_simulation.simulate()
-
+                canvas.pack_forget()
                 self.pages['editor_screen']['canvas'][-1] = self.widget.canvas(master)
                 canvas = self.pages['editor_screen']['canvas'][-1]
                 self.draw_cloud(frame_1)
@@ -410,7 +410,7 @@ class GUI:
                         text="Generating frames..."))
                 self.canvas_frames.append(canvas)
             else:
-                #print(self.canvas_frames[i])
+                canvas.pack_forget()
                 canvas = self.canvas_frames[i]
                 if self.loading_text:
                     canvas.delete(self.loading_text[i])
@@ -527,7 +527,6 @@ class Widget:
                 )
         canvas.pack(
             fill='both',
-            expand=True,
-            anchor='n'
+            expand=True
             )
         return canvas
