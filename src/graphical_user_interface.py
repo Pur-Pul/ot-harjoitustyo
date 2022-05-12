@@ -1,6 +1,7 @@
 import tkinter as tk
 import copy
 import time
+from typing import NoReturn
 from generation_algorithm import Node
 from wind_simulation import WindSimulator
 from database import Project, get_project_names
@@ -23,7 +24,7 @@ class GUI:
         self.canvas_frames = []
         self.first_canvas_frame = None
         self.animating = False
-        self.loading_text = []
+        self.loading_text = None
 
         #cloud options
         self.cloud_frames = 1
@@ -391,38 +392,35 @@ class GUI:
         master = canvas.master
         if self.frame_update:
             for i in self.canvas_frames:
-                i.destroy()
-            self.canvas_frames.clear()
+                if i != 'first':
+                    canvas.delete(i)
+            self.canvas_frames=['first']
+            canvas.itemconfigure(self.loading_text, state='normal')
 
         for i in range(0, frame_count):
             
+            canvas = self.pages['editor_screen']['canvas'][-1]
+
             new_table = []
             if self.frame_update:
                 for row in frame_1:
                     new_table.append(copy.copy(row))
                 new_simulation = WindSimulator(new_table)
                 frame_1 = new_simulation.simulate()
-                canvas.pack_forget()
-                self.pages['editor_screen']['canvas'][-1] = self.widget.canvas(master)
-                canvas = self.pages['editor_screen']['canvas'][-1]
-                self.draw_cloud(frame_1)
-                self.loading_text.append(canvas.create_text(100,100,font=("calibri", 16),
-                        text="Generating frames..."))
-                self.canvas_frames.append(canvas)
+                cloud_tag = 'cloud_'+str(i)
+                self.draw_cloud(frame_1,cloud_tag)
+                self.canvas_frames.append(cloud_tag)
+                canvas.itemconfigure(self.canvas_frames[-2], state='hidden')
             else:
-                canvas.pack_forget()
-                canvas = self.canvas_frames[i]
-                if self.loading_text:
-                    canvas.delete(self.loading_text[i])
-                self.widget.canvas(canvas=canvas)
-
-            self.window.update()
-            time.sleep(0.01)
-        canvas.pack_forget()
-        self.pages['editor_screen']['canvas'][-1] = self.first_canvas_frame
-        self.widget.canvas(canvas=self.pages['editor_screen']['canvas'][-1])
-        if not self.frame_update:
-            self.loading_text = []
+                canvas.itemconfigure('all', state='hidden')
+                canvas.itemconfigure(self.canvas_frames[i], state='normal')
+                
+            
+            
+            
+            self.window.after(10, self.window.update())
+        canvas.itemconfigure('all', state='hidden')
+        canvas.itemconfigure(self.canvas_frames[0], state='normal')
         self.frame_update = False
         self.window.update()
         self.animating = False
@@ -446,7 +444,7 @@ class GUI:
                     newtext+=i
             strv.set(newtext)
 
-    def draw_cloud(self, table=None):
+    def draw_cloud(self, table=None, cloud_tag='first'):
         """Generates a cloud using the Node class and draws it onto the previously generated canvas.
 
         Args:
@@ -461,8 +459,9 @@ class GUI:
                 table.append([None]*self.cloud_width)
             self.cloud = Node([self.cloud_height//2, self.cloud_width//2],table)
             self.frame_update = True
-
-        canvas.itemconfig('all',state='hidden')
+            canvas.delete('all')
+            self.window.update()
+            self.loading_text = None
         for row_index, row in enumerate(table):
             for node_index, node in enumerate(row):
                 if not node:
@@ -481,8 +480,17 @@ class GUI:
                     (node_index+2)*10,
                     (row_index+2)*10,
                     outline=cloud_color,
-                    fill=cloud_color
+                    fill=cloud_color,
+                    tags = cloud_tag
                     )
+        
+        if not self.loading_text:
+            self.loading_text = canvas.create_text(100,100,
+                    font=("calibri", 16),
+                    text="Generating frames..."
+                    )
+            canvas.itemconfig(self.loading_text, state='hidden')
+        canvas.tag_raise(self.loading_text)
         self.table = table
 
 class Widget:
@@ -521,12 +529,10 @@ class Widget:
         if not canvas:
             canvas = tk.Canvas(
                 frame,
-                bg=self.palette['button_color'],
-                highlightbackground=self.palette['bg_color'],
-                highlightthickness=10
+                bg=self.palette['button_color']
                 )
         canvas.pack(
-            fill='both',
-            expand=True
+            expand = True,
+            fill = 'both'
             )
         return canvas
