@@ -11,7 +11,7 @@ Application is still under developement.
 [Architecture](dokumentaatio/arkkitehtuuri.md)
 
 ## Installation  
-[Lastest Release](https://github.com/Pur-Pul/ot-harjoitustyo/releases/tag/first_release_v.0.1.0-alpha)  
+[Lastest Release](https://github.com/Pur-Pul/ot-harjoitustyo/releases/tag/1.1.0)  
 
 Install requirements with:  
 ```bash
