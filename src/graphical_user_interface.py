@@ -369,6 +369,8 @@ class GUI:
         """
         if self.animation_options['animating']:
             return
+        for textbox in self.pages['editor_screen']['textboxes']:
+            textbox.configure(state='disabled')
         self.animation_options['animating'], frame_1, canvas, canvas_frames = (
             True,
             copy.copy(self.project_options['table']),
@@ -399,6 +401,8 @@ class GUI:
         canvas.itemconfigure(canvas_frames[0], state='normal')
         self.window.update()
         self.animation_options['animating'], self.frame_update = (False, False)
+        for textbox in self.pages['editor_screen']['textboxes']:
+            textbox.configure(state='normal')
 
     def textbox_update(self, strv):
         """Function that validates the input written into the textboxes.
@@ -411,6 +415,10 @@ class GUI:
         for i in text:
             if i.isdigit():
                 new_text+=i
+        while len(new_text) > 0 and new_text[0] == '0':
+            new_text = new_text[1:]
+        if len(new_text) == 0:
+            new_text='1'
         strv.set(new_text)
         self.frame_update=True
 
