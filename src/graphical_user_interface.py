@@ -1,37 +1,36 @@
 import tkinter as tk
 import copy
-import time
-from typing import NoReturn
 from generation_algorithm import Node
 from wind_simulation import WindSimulator
 from database import Project, get_project_names
 
 class GUI:
+    """This class is the base of the graphical user interface.
+    It generates and displays all the graphical elements of the application using tkinter.
+    """
     def __init__(self, color_palette):
         """Assigns the base values for the class variables.
 
         Args:
-            color_palette: This is the color palette used in the user interface
+            color_palette: This is the color palette used in the user interface.
         """
-        self.palette = color_palette
-        self.done=False
-        self.table = []
-        self.cloud = None
+        self.done = False
         self.window = None
-        self.project_name = None
-        self.current_project = None
         self.frame_update = True
-        self.canvas_frames = []
-        self.first_canvas_frame = None
-        self.animating = False
-        self.loading_text = None
-
+        #project options
+        self.project_options = {
+            'table' : [],
+            'current_project' : None
+        }
         #cloud options
-        self.cloud_frames = 1
-        self.cloud_width = 40
-        self.cloud_height = 15
-
-        self.widget = Widget(self.palette)
+        self.cloud_options = {}
+        #animation options
+        self.animation_options = {
+            'canvas_frames' : ['first'],
+            'animating' : False,
+            'loading_text' : None,
+        }
+        self.widget = Widget(color_palette)
 
         self.pages = {'creation_screen' :
         {'frame_count' : 2,
@@ -56,16 +55,14 @@ class GUI:
         borders = []
         for i in range(0, frame_count):
             borders.append(None)
+            frames.append(self.widget.frame(main_frame))
             if i!=0:
-                borders[i]=(tk.Frame(main_frame, bg=self.palette['bg_tb_color'], width=3))
-                borders[i].pack(side='left', fill='y')
+                borders[i]=self.widget.border(main_frame)
                 if frame_count==3 and i ==1:
-                    frames.append(tk.Frame(main_frame, bg=self.palette['bg_color'], width = 800))
-                else:
-                    frames.append(tk.Frame(main_frame, bg=self.palette['bg_color']))
+                    frames[i].configure(width = 800)
                 frames[i].pack(side='left', expand=True,  fill='both')
             else:
-                frames.append(tk.Frame(main_frame, bg=self.palette['bg_color'], width=150))
+                frames[i].configure(width=150)
                 frames[i].pack(side='left', fill='y')
         return [frames,borders]
 
@@ -84,47 +81,21 @@ class GUI:
         for i, frame in enumerate(frames):
             labels.append([])
             if i == 0:
-                label = self.widget.label(frame)
-                label.configure(
-                    text = 'Recent projects:',
-                    font=('calibri', 16)
-                )
-                label.place(
-                    anchor='n',
-                    relx=0.5,
-                    rely=0
-                    )
+                label = self.widget.label(frame, 'Recent projects:', 16)
+                label.pack()
                 labels[i].append(label)
-                project_names = get_project_names()
-                for name_i, name in enumerate(project_names):
-                    label_y=float(name_i+2)/30
-                    label = self.widget.label(frame)
-                    label.configure(
-                        text = name,
-                        font=('calibri', 15)
-                        )
-                    label.place(
-                        anchor='n',
-                        relx=0.5,
-                        rely=label_y
-                        )
+                for name in get_project_names():
+                    label = self.widget.link(frame, name, self)
+                    label.pack()
                     labels[i].append(label)
             elif i == 1 and page == 'creation_screen':
-                label = self.widget.label(frame)
-                label.configure(
-                    text = 'CloudGenerator',
-                    font=('calibri', 50)
-                    )
+                label = self.widget.label(frame, 'CloudGenerator', 50)
                 label.place(x=100, y=50)
                 labels[i].append(label)
             elif i == 2 and page == 'editor_screen':
-                option_labels=['Frames:', 'Width:', 'Height:']
+                option_labels=['Frames:', 'Width:', 'Height:', 'FPS:']
                 for text_i, text in enumerate(option_labels):
-                    label = self.widget.label(frame)
-                    label.configure(
-                        text = text,
-                        font=('calibri', 15)
-                        )
+                    label = self.widget.label(frame, text)
                     label.place(
                         anchor = 'n',
                         relx = 0.15,
@@ -157,6 +128,7 @@ class GUI:
                 strv.trace(
                     "w",
                     lambda *args,
+                    textbox=textbox,
                     strv=strv:
                     self.clear_textbox(textbox, strv)
                     )
@@ -167,9 +139,11 @@ class GUI:
                     )
                 textboxes.append(textbox)
             elif page == 'editor_screen' and i == 2:
-                option_textboxes=[[self.cloud_frames, 'frames'], [self.cloud_width, 'width'], [self.cloud_height, 'height']]
+                option_textboxes = []
+                for option,value in self.cloud_options.items():
+                    option_textboxes.append([value, option])
                 for textbox_i, textbox_value in enumerate(option_textboxes):
-                    strv = tk.StringVar(value = textbox_value[0])
+                    strv = textbox_value[0]
                     textbox = self.widget.textbox(frame)
                     textbox.configure(
                         font=('calibri', 16),
@@ -177,12 +151,10 @@ class GUI:
                         textvariable = strv
                         )
                     strv.trace(
-                        "w", 
+                        "w",
                         lambda *args,
-                        strv=strv,
-                        textbox=textbox,
-                        option=textbox_value[1]:
-                        self.textbox_update(textbox, option, strv)
+                        strv=strv:
+                        self.textbox_update(strv)
                         )
                     textbox.place(
                         anchor='nw',
@@ -204,11 +176,11 @@ class GUI:
         buttons = []
         for i, frame in enumerate(frames):
             if page == 'creation_screen' and i == 1:
-                button = self.widget.button(frame)
-                button.configure(
-                    command = lambda: self.save_project(self.pages[page]['textboxes'][0].get()),
-                    text = 'create',
-                    font=('calibri', 20)
+                button = self.widget.button(
+                    frame,
+                    'create',
+                    20,
+                    lambda: self.save_project(self.pages[page]['textboxes'][0].get())
                     )
                 button.place(
                     anchor='s',
@@ -218,10 +190,10 @@ class GUI:
                 buttons.append(button)
             if page == 'editor_screen' and i == 2:
                 #Create button
-                button = self.widget.button(frame)
-                button.configure(
-                    command = lambda: self.draw_cloud(),
-                    text = 'Generate new cloud'
+                button = self.widget.button(
+                    frame,
+                    'Generate new cloud',
+                    command = lambda: self.draw_cloud() # pylint: disable=unnecessary-lambda
                     )
                 button.place(
                     anchor='s',
@@ -230,10 +202,11 @@ class GUI:
                     )
                 buttons.append(button)
                 #Animate button
-                button = self.widget.button(frame)
-                button.configure(
-                    command = lambda: self.animate_cloud(self.cloud_frames),
-                    text = 'Animate cloud')
+                button = self.widget.button(
+                    frame,
+                    'Animate cloud',
+                    command = lambda: self.animate_cloud(int(self.cloud_options['frames'].get())) # pylint: disable=unnecessary-lambda
+                    )
                 button.place(
                     anchor='s',
                     relx=0.5,
@@ -241,10 +214,11 @@ class GUI:
                     )
                 buttons.append(button)
                 #Save project to database
-                button = self.widget.button(frame)
-                button.configure(
-                    command = lambda: self.save_project(),
-                    text = 'Save project')
+                button = self.widget.button(
+                    frame,
+                    'Save project',
+                    command = lambda: self.save_project() # pylint: disable=unnecessary-lambda
+                    )
                 button.place(
                     anchor='s',
                     relx=0.5,
@@ -280,15 +254,15 @@ class GUI:
             _type_: _description_
         """
         self.window = tk.Tk()
+        self.cloud_options = {
+            'frames' : tk.StringVar(value=1),
+            'width' : tk.StringVar(value=40),
+            'height' : tk.StringVar(value=15),
+            'fps' : tk.StringVar(value=12)
+            }
         self.window.geometry(str(window_size*2)+'x'+str(window_size))
-        self.pages['creation_screen']['main_frame'] = tk.Frame(self.window,
-        bg=self.palette['bg_color'],
-        highlightbackground=self.palette['bg_tb_color'],
-        highlightthickness=3)
-        self.pages['editor_screen']['main_frame'] = tk.Frame(self.window,
-        bg=self.palette['bg_color'],
-        highlightbackground=self.palette['bg_tb_color'],
-        highlightthickness=3)
+        self.pages['creation_screen']['main_frame'] = self.widget.frame(self.window)
+        self.pages['editor_screen']['main_frame'] = self.widget.frame(self.window)
         for key, page in self.pages.items():
             frames_and_borders = self.create_frames(key)
             page['frames'] = frames_and_borders[0]
@@ -297,7 +271,7 @@ class GUI:
             page['textboxes'] = self.create_textboxes(key)
             page['buttons'] = self.create_buttons(key)
             page['canvas'] = self.create_canvas(key)
-        self.first_canvas_frame = self.draw_cloud()
+        self.draw_cloud()
         self.pages['editor_screen']['main_frame'].place(relwidth=1, relheight=1)
         self.pages['creation_screen']['main_frame'].place(relwidth=1, relheight=1)
         self.pages['creation_screen']['main_frame'].lift()
@@ -312,24 +286,27 @@ class GUI:
             If no name is given, the function uses the stored project object. Defaults to None.
         """
         if name:
-            print(name)
-            self.project_name = name
-            self.current_project = Project(name)
-            if self.current_project.table:
-                self.table = self.reconstruct_table(self.current_project.table)
-                if self.current_project.table_height:
-                    self.cloud_height = self.current_project.table_height
-                if self.current_project.table_width:
-                    self.cloud_width = self.current_project.table_width
-                if self.current_project.frame_count:
-                    self.cloud_frames = self.current_project.frame_count
-                self.draw_cloud(self.table)
+            new_project = Project(name)
+            if new_project.table:
+                self.project_options['table'] = self.reconstruct_table(new_project.table)
+                if new_project.table_height:
+                    self.cloud_options['height'].set(new_project.table_height)
+                if new_project.table_width:
+                    self.cloud_options['width'].set(new_project.table_width)
+                if new_project.frame_count:
+                    self.cloud_options['frames'].set(new_project.frame_count)
+                self.draw_cloud(self.project_options['table'])
             self.show('editor_screen')
+            self.project_options['current_project'] = new_project
         else:
-            self.current_project.table = self.table
-            self.current_project.table_height = len(self.table)
-            self.current_project.table_width = len(self.table[0])
-            self.current_project.save_project_data()
+            project = self.project_options['current_project']
+            project.table = self.project_options['table']
+            project.table_height,project.table_width,project.frame_count = (
+                len(self.project_options['table']),
+                len(self.project_options['table'][0]),
+                self.cloud_options['frames'].get()
+                )
+            project.save_project_data()
 
     def reconstruct_table(self, table):
         """This function reconstructs a cloud table from the table stored in the database.
@@ -369,80 +346,73 @@ class GUI:
             textbox: The textbox to clear.
         """
         text = textbox.get()
-        if 'Enter name of project...' in text and not self.done:
+        if not self.done:
             self.done=True
-            text = text.replace('Enter name of project...','')
-            strv.set(text)
-        print(textbox.get())
+            template = 'Enter name of project...'
+            if len(text) < len(template):
+                strv.set('')
+                return
+            for i, letter in enumerate(template):
+                if text[i] != letter:
+                    strv.set(text[i])
+                    return
+            strv.set(text[-1])
 
     def animate_cloud(self, frame_count):
         """This function animates the cloud
         by switching between a specified number frames generated by the WindSimulator class.
+        The frames are represented as items on the canvas,
+        which can be manipulated using a tag in the format 'cloud_<number>'.
 
         Args:
             frame_count: the number of frames to be used in the animation.
         """
-        if self.animating:
-            return 
-        self.animating = True
-        original = self.table
-        frame_1 = copy.copy(original)
-        canvas = self.pages['editor_screen']['canvas'][-1]
-        self.first_canvas_frame = canvas
-        master = canvas.master
-        if self.frame_update:
-            for i in self.canvas_frames:
-                if i != 'first':
-                    canvas.delete(i)
-            self.canvas_frames=['first']
-            canvas.itemconfigure(self.loading_text, state='normal')
+        if self.animation_options['animating']:
+            return
+        self.animation_options['animating'], frame_1, canvas, canvas_frames = (
+            True,
+            copy.copy(self.project_options['table']),
+            self.pages['editor_screen']['canvas'][-1],
+            self.animation_options['canvas_frames']
+            )
+        while self.frame_update and len(canvas_frames)>1:
+            canvas.delete(canvas_frames.pop())
 
         for i in range(0, frame_count):
-            
-            canvas = self.pages['editor_screen']['canvas'][-1]
-
             new_table = []
             if self.frame_update:
                 for row in frame_1:
                     new_table.append(copy.copy(row))
-                new_simulation = WindSimulator(new_table)
-                frame_1 = new_simulation.simulate()
-                cloud_tag = 'cloud_'+str(i)
-                self.draw_cloud(frame_1,cloud_tag)
-                self.canvas_frames.append(cloud_tag)
-                canvas.itemconfigure(self.canvas_frames[-2], state='hidden')
+                frame_1 = WindSimulator(new_table).simulate()
+                self.draw_cloud(frame_1,'cloud_'+str(i))
+                canvas_frames.append('cloud_'+str(i))
+                canvas.itemconfigure(canvas_frames[-2], state='hidden')
+                self.window.update()
             else:
                 canvas.itemconfigure('all', state='hidden')
-                canvas.itemconfigure(self.canvas_frames[i], state='normal')
-                
-            
-            
-            
-            self.window.after(10, self.window.update())
+                canvas.itemconfigure(canvas_frames[i], state='normal')
+                self.window.after(
+                    1000//int(self.cloud_options['fps'].get()),
+                    self.window.update()
+                    )
         canvas.itemconfigure('all', state='hidden')
-        canvas.itemconfigure(self.canvas_frames[0], state='normal')
-        self.frame_update = False
+        canvas.itemconfigure(canvas_frames[0], state='normal')
         self.window.update()
-        self.animating = False
-        self.table = original
+        self.animation_options['animating'], self.frame_update = (False, False)
 
-    def textbox_update(self, textbox, option, strv):
-        text = textbox.get()
-        print(text, option)
-        try:
-            if option == 'frames':
-                self.cloud_frames = int(text)
-            elif option == 'width':
-                self.cloud_width = int(text)
-            elif option == 'height':
-                self.cloud_height = int(text)
-            self.frame_update = True
-        except ValueError:
-            newtext=''
-            for i in text:
-                if i.isdigit():
-                    newtext+=i
-            strv.set(newtext)
+    def textbox_update(self, strv):
+        """Function that validates the input written into the textboxes.
+
+        Args:
+            strv: StringVariable of the updated textbox.
+        """
+        text = strv.get()
+        new_text=''
+        for i in text:
+            if i.isdigit():
+                new_text+=i
+        strv.set(new_text)
+        self.frame_update=True
 
     def draw_cloud(self, table=None, cloud_tag='first'):
         """Generates a cloud using the Node class and draws it onto the previously generated canvas.
@@ -452,51 +422,71 @@ class GUI:
             the function draws the specified cloud onto the canvas instead of generating a new one.
             Defaults to None.
         """
-        canvas = self.pages['editor_screen']['canvas'][-1]
+        canvas, neighbor_color, self.animation_options['loading_text'], scale = (
+            self.pages['editor_screen']['canvas'][-1],
+            {1: "#A9A9A9", 2 : "#D3D3D3", 3 : "#E5E4E2"},
+            None,
+            [int(self.cloud_options['height'].get()),int(self.cloud_options['width'].get())]
+            )
         if not table:
-            table=[]
-            for _ in range(0,self.cloud_height):
-                table.append([None]*self.cloud_width)
-            self.cloud = Node([self.cloud_height//2, self.cloud_width//2],table)
-            self.frame_update = True
+            table, self.frame_update = ([], True)
+            for _ in range(0,int(self.cloud_options['height'].get())):
+                table.append([None]*int(self.cloud_options['width'].get()))
+            Node(
+                [int(self.cloud_options['height'].get())//2,
+                int(self.cloud_options['width'].get())//2],
+                table
+                )
+        scale.sort()
+        if cloud_tag == 'first':
             canvas.delete('all')
-            self.window.update()
-            self.loading_text = None
+            self.project_options['table'] = table
         for row_index, row in enumerate(table):
             for node_index, node in enumerate(row):
                 if not node:
                     continue
-                if len(node.neighbors) == 1:
-                    cloud_color="#A9A9A9"
-                elif len(node.neighbors) == 2:
-                    cloud_color="#D3D3D3"
-                elif len(node.neighbors) == 3:
-                    cloud_color="#E5E4E2"
-                else:
+                if len(node.neighbors) not in neighbor_color:
                     cloud_color="white"
+                else:
+                    cloud_color=neighbor_color[len(node.neighbors)]
                 canvas.create_rectangle(
-                    (node_index+1)*10,
-                    (row_index+1)*10,
-                    (node_index+2)*10,
-                    (row_index+2)*10,
+                    (node_index+1)*800//scale[1],
+                    (row_index+1)*800//scale[1],
+                    (node_index+2)*800//scale[1],
+                    (row_index+2)*800//scale[1],
                     outline=cloud_color,
                     fill=cloud_color,
                     tags = cloud_tag
                     )
-        
-        if not self.loading_text:
-            self.loading_text = canvas.create_text(100,100,
+        if cloud_tag != 'first' and self.frame_update:
+            self.animation_options['loading_text'] = canvas.create_text(
+                    100,
+                    100,
                     font=("calibri", 16),
                     text="Generating frames..."
                     )
-            canvas.itemconfig(self.loading_text, state='hidden')
-        canvas.tag_raise(self.loading_text)
-        self.table = table
+            canvas.tag_raise(self.animation_options['loading_text'])
+
 
 class Widget:
+    """This class is used to simplify the creation of widgets for the GUI
+    """
     def __init__(self, palette):
+        """Initializes the color palette used in the GUI
+
+        Args:
+            palette: A python dictionary containing colorvalues as hex form.
+        """
         self.palette = palette
     def textbox(self,frame):
+        """This function is used to generate an entry widget with predefined attributes.
+
+        Args:
+            frame: The master frame of the entry widget.
+
+        Returns:
+            textbox: The created entry widget.
+        """
         textbox = tk.Entry(
             frame,
             fg = self.palette['bg_tb_color'],
@@ -507,14 +497,37 @@ class Widget:
             exportselection = 0
             )
         return textbox
-    def label(self,frame):
+    def label(self,frame, text, size = 15):
+        """This function is used to generate a label widget with predefined attributes.
+
+        Args:
+            frame: The master frame of the label widget.
+            text: The text the label will display.
+            size (int, optional): The font size. Defaults to 15.
+
+        Returns:
+            label: The generated label.
+        """
         label = tk.Label(
             frame,
             fg = self.palette['bg_tb_color'],
-            bg=self.palette['bg_color']
+            bg = self.palette['bg_color'],
+            text = text,
+            font=('calibri', size)
             )
         return label
-    def button(self,frame):
+    def button(self,frame,text=None,size=15,command=None):
+        """This function generates a button widget with predefiend attributes.
+
+        Args:
+            frame: The master frame of the generated button.
+            text: (optional) The text displayed on the button. Defaults to None
+            size (int, optional): The font size. Defaults to 15.
+            command (optional): The command executen when the button is pressed. Defaults to None.
+
+        Returns:
+            button: The generated button.
+        """
         button = tk.Button(
             frame,
             padx=2,
@@ -522,17 +535,82 @@ class Widget:
             bg = self.palette['button_color'],
             activeforeground = self.palette['button_color'],
             activebackground = self.palette['button_ft_color'],
-            font=('calibri', 15)
+            font=('calibri', size),
+            text = text,
+            command = command
             )
         return button
-    def canvas(self,frame=None,canvas=None):
-        if not canvas:
-            canvas = tk.Canvas(
-                frame,
-                bg=self.palette['button_color']
-                )
+    def canvas(self,frame=None):
+        """This function is used to generate canvas widget with predefined attributes.
+
+        Args:
+            frame (_type_, optional): The master frame of the generated widget. Defaults to None.
+
+        Returns:
+            canvas: The generated canvas.
+        """
+        canvas = tk.Canvas(
+            frame,
+            bg=self.palette['button_color']
+            )
         canvas.pack(
             expand = True,
             fill = 'both'
             )
         return canvas
+    def border(self, main_frame):
+        """This function uses predefined attributes to generates a frame widget,
+        which acts as a cosmetic border.
+
+        Args:
+            main_frame: The master frame of the generated widget.
+
+        Returns:
+            border: The generated border
+        """
+        border = tk.Frame(
+            main_frame,
+            bg=self.palette['bg_tb_color'],
+            width=3)
+        border.pack(side='left', fill='y')
+        return border
+    def frame(self, main_frame):
+        """This function generates a frame widget with predefined attributes
+
+        Args:
+            main_frame: The master frame of the widget
+
+        Returns:
+            frame: The generated frame
+        """
+        frame = tk.Frame(
+            main_frame,
+            bg=self.palette['bg_color']
+            )
+        return frame
+    def link(self,frame, text, gui, size = 15):
+        """This function is used to generate a button widget, which functions as a link.
+
+        Args:
+            frame: The master frame of the label widget.
+            text: The text the label will display.
+            gui: The GUI object, used to access the save_project function.
+            size (int, optional): The font size. Defaults to 15.
+
+        Returns:
+            label: The generated label.
+        """
+        label = tk.Button(
+            frame,
+            fg = self.palette['bg_tb_color'],
+            bg = self.palette['bg_color'],
+            activebackground=self.palette['bg_color'],
+            activeforeground=self.palette['button_color'],
+            bd = 0,
+            highlightthickness= 0,
+            text = text,
+            font=('calibri', size),
+            wraplength=150,
+            command= lambda: gui.save_project(text)
+            )
+        return label

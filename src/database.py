@@ -1,6 +1,6 @@
 import sqlite3
 class Project:
-    def __init__(self, name):
+    def __init__(self, name=None, initialize = True):
         """Initializes the base values for the class variables,
         connects to the database and calls create_tables and initial_save.
 
@@ -18,7 +18,8 @@ class Project:
         self.table = None
 
         self.create_tables()
-        self.initial_save()
+        if initialize:
+            self.initial_save()
 
     def create_tables(self):
         """This function generates the tables in the database if they do not already exist.
@@ -118,6 +119,7 @@ def get_project_names():
     Returns:
         project_names :This is a list containing all the names of projects in the database.
     """
+    Project(initialize=False)
     conn = sqlite3.connect('project_data.db')
     cur = conn.cursor()
     project_names = cur.execute("""SELECT name FROM projects""").fetchall()

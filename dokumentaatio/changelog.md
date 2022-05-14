@@ -28,6 +28,7 @@
 
 ## Week7
 - Implemented options in the editor that affect the appearance and animation of the generated clouds.
-  *Frame count, width and height*
+  *Frame count, width, height and FPS*
 - Optimized the generation algorithm and animation to be able to handle larger clouds.
   *The first time something is animated and the frames are being generated the animation plays more slowly*
+- Made it possible to open a project by clicking their labels in the recent projects tab.

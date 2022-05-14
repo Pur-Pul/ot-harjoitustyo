@@ -21,17 +21,28 @@ class Node:
         self.limit = [0, len(table)-1, 0, len(table[0])-1] #[up, down, left right]
         self.table = table
         #Place self in table
-        #print(coords)
         table[coords[0]][coords[1]] = self
         self.neighbors = {}
         self.empty = []
         if parent:
             self.neighbors[str(parent.coords)] = parent
-        if not manual:
-            self.find_neighbors()
-            self.create_node()
+        if manual:
+            return
+        self.find_neighbors()
+        if self.rec >= sys.getrecursionlimit()-800:
+            return
+        self.create_node()
+        if parent:
+            return
+        for row in table:
+            for node in row:
+                if not node:
+                    continue
+                node.neighbors.clear()
+                node.empty.clear()
+                node.find_neighbors(single = True)
 
-    def find_neighbors(self, rec = 1):
+    def find_neighbors(self, rec = 1, single=False):
         """This function looks for neighboring nodes in the adjecent spaces.
         If a new node is found,
         it is saved as a neighbor and told to look for neighbors of it's own.
@@ -43,18 +54,15 @@ class Node:
         """
         if rec == 1:
             rec = self.rec
-        if rec >= sys.getrecursionlimit()-500:
-            return
-        coords = self.coords
-        limit = self.limit
+        coords, limit = (self.coords, self.limit)
         up = [coords[0]-1, coords[1]] # pylint: disable=invalid-name
         right = [coords[0], coords[1]+1]
         down = [coords[0]+1, coords[1]]
         left = [coords[0], coords[1]-1]
-        neighbors = [up, down, left, right]
-
-        self.empty = [False, False, False, False]
-        #print(coords, neighbors)
+        neighbors,self.empty = (
+            [up, down, left, right],
+            [False, False, False, False]
+            )
         for neighbor_i, neighbor in enumerate(neighbors):
             in_range = (neighbors[neighbor_i][0] <= limit[1] and
             neighbor[0] >= limit[0] and
@@ -65,7 +73,8 @@ class Node:
             #print('pass', neighbors[n])
             if self.table[neighbor[0]][neighbor[1]]:
                 self.neighbors[str(neighbor)] = self.table[neighbor[0]][neighbor[1]]
-                self.table[neighbor[0]][neighbor[1]].find_neighbors(rec+1)
+                if not single:
+                    self.table[neighbor[0]][neighbor[1]].find_neighbors(rec+1, True)
             else:
                 self.empty[neighbor_i] = True
 
@@ -74,10 +83,10 @@ class Node:
         Wether a node is created or not,
         is determined by the current node's distance to the limit and randomness.
         """
-        middle_y = -1 * (-self.limit[1]//2)
-        middle_x = -1 * (-self.limit[3]//2)
-        y_dis = 0
-        x_dis = 0
+        middle_y, middle_x, y_dis, x_dis = (
+            (-1 * (-self.limit[1]//2)),
+            (-1 * (-self.limit[3]//2)),
+            0,0)
         if self.coords[0] < middle_y:
             y_dis = self.coords[0]
         else:
@@ -86,9 +95,7 @@ class Node:
             x_dis = self.coords[1]
         else:
             x_dis = self.limit[3] - self.coords[1]
-        #print(self.coords, yDis, xDis)
-        y_create = False
-        x_create = False
+        y_create, x_create = (False, False)
         for direction_index, direction in enumerate(self.empty):
             if direction: #[up, down, left, right]
                 if (y_dis > 0 and direction_index in  (0, 1)
@@ -99,38 +106,31 @@ class Node:
                 and random.randrange(0, x_dis+1) < x_dis
                 and random.randrange(0, y_dis+1) < y_dis):
                     x_create = True
-
-        if self.rec >= sys.getrecursionlimit()-700:
-            y_create = False
-            x_create = False
-        if x_create and (self.empty[2] or self.empty[3]):
-            ind = random.randrange(2,4)
-            while not self.empty[ind]:
-                if ind == 3:
-                    ind = 2
-                else:
-                    ind = 3
-            if ind == 2:
-                diff = -1
-            else:
-                diff = 1
-            new_coords = [self.coords[0],self.coords[1]+diff]
-            self.neighbors[str(new_coords)] = Node(new_coords, self.table, self, rec = self.rec+1)
-        if y_create and (self.empty[0] or self.empty[1]):
+        if x_create:
+            self.new_node('x', self.empty[2:4])
+        if y_create:
+            self.new_node('y', self.empty[0:2])
+    def new_node(self, direction, empty):
+        if empty[0] and empty[1]:
             ind = random.randrange(0, 2)
-            while not self.empty[ind]:
-                if ind == 0:
-                    ind = 1
-                else:
-                    ind = 0
-            if ind == 0:
-                diff = -1
-            else:
-                diff = 1
-            new_coords = [self.coords[0]+diff,self.coords[1]]
-            self.neighbors[str(new_coords)] = Node(new_coords, self.table, self, rec = self.rec+1)
-
-        
+        else:
+            for i, val in enumerate(empty):
+                ind=None
+                if val:
+                    ind = i
+                    break
+        if ind is not None:
+            diff = [-1,1][ind]
+            new_coords = {
+                'x':[self.coords[0],self.coords[1]+diff],
+                'y':[self.coords[0]+diff,self.coords[1]]
+                }
+            self.neighbors[str(new_coords)] = Node(
+                new_coords[direction],
+                self.table,
+                self,
+                rec = self.rec+1
+                )
 
 def print_table(table): # pragma: no cover
     art = []

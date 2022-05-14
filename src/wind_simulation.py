@@ -25,22 +25,22 @@ class WindSimulator:
         Returns:
             _type_: _description_
         """
-        y_move=0
-        x_move=0
-        x_dif = col_i
-        if len(row)-1 - col_i < col_i:
-            x_dif = len(row)-1 - col_i
+        y_move,x_move,x_difs,y_difs=(
+            0,0,
+            [col_i,len(row)-1 - col_i],
+            [row_i,len(self.old_table)-1 - row_i]
+            )
+        x_difs.sort()
+        y_difs.sort()
+        y_dif,x_dif = (y_difs[0], x_difs[0])
 
-        y_dif = row_i
-        if len(self.old_table)-1 - row_i < row_i:
-            y_dif = len(self.old_table)-1 - row_i
+        left_side = col_i < len(row)//2
+        up_side = row_i < len(self.old_table)//2
 
-        left_side = col_i <= len(row)//2
-        up_side = row_i <= len(self.old_table)//2
-
-        if not(len(self.old_table)%2!=0 and
-        abs(len(self.old_table)-1 - row_i) == row_i and
-        x_dif>=y_dif):
+        if not(
+            abs(len(self.old_table)-1 - row_i) == row_i
+            and x_dif>=y_dif
+            ):
             if ((up_side and x_dif > y_dif) or
             (up_side and not left_side and x_dif == y_dif)):
                 x_move = -1
@@ -74,7 +74,7 @@ class WindSimulator:
             for col_i, col in enumerate(row):
                 if not col:
                     continue
-                col.find_neighbors()
+                col.find_neighbors(single=True)
 
         return self.new_table
 

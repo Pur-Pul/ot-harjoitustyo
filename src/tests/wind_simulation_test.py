@@ -12,17 +12,19 @@ class Test_WindSimulator(unittest.TestCase):
     def test_the_nodes_in_the_new_table_know_their_new_neighbors(self):
         sim = WindSimulator(self.table)
         self.table = sim.simulate()
-        #print(self.table)
         test_table=[]
         for _ in range(0, 20):
             test_table.append([None]*40)
         for row_index, row in enumerate(self.table):
             for node_index, node in enumerate(row):
-                up=[row_index-1, node_index]
-                down=[row_index+1, node_index]
+                up=[row_index-1,node_index]
+                down=[row_index+1,node_index]
                 left=[row_index,node_index-1]
                 right=[row_index,node_index+1]
                 if node:
+                    if len(node.neighbors.keys()) == 0:
+                        self.table[row_index][node_index] = None
+                        continue
                     if row_index != 0 and str(up) in node.neighbors:
                         test_table[row_index-1][node_index]=node.neighbors[str(up)]
                     if node_index != 0 and str(left) in node.neighbors:
