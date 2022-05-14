@@ -11,7 +11,7 @@ The user interface features two different pages. One for project creation and on
 
 In the project creation page the user is prompted to either open a project or create a new one. After selecting either the work environment is loaded in.
 The work environment consists of a sprite viewer, a settings tab and a list of recently created projects.
-### Drafts:
+### Screenshots:
 ![Draft of creation page](https://github.com/Pur-Pul/ot-harjoitustyo/blob/master/dokumentaatio/cloudpage1draft.png)
 ![Draft of work environment](https://github.com/Pur-Pul/ot-harjoitustyo/blob/master/dokumentaatio/cloudpage2draft.png)
 ## Functionality
