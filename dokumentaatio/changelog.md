@@ -27,8 +27,10 @@
   *Projects are loaded by creating a new project with the same name as a previous one*
 
 ## Week7
+
 - Implemented options in the editor that affect the appearance and animation of the generated clouds.
   *Frame count, width, height and FPS*
 - Optimized the generation algorithm and animation to be able to handle larger clouds.
   *The first time something is animated and the frames are being generated the animation plays more slowly*
 - Made it possible to open a project by clicking their labels in the recent projects tab.
+- Made it possible to change the color of the cloud by entering RGB values in the editor.

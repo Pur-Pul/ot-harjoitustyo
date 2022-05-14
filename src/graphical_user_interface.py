@@ -29,6 +29,7 @@ class GUI:
             'canvas_frames' : ['first'],
             'animating' : False,
             'loading_text' : None,
+            'color' : '#ffffff'
         }
         self.widget = Widget(color_palette)
 
@@ -93,7 +94,7 @@ class GUI:
                 label.place(x=100, y=50)
                 labels[i].append(label)
             elif i == 2 and page == 'editor_screen':
-                option_labels=['Frames:', 'Width:', 'Height:', 'FPS:']
+                option_labels=['Frames:', 'Width:', 'Height:', 'FPS:', 'Red', 'Green', 'Blue']
                 for text_i, text in enumerate(option_labels):
                     label = self.widget.label(frame, text)
                     label.place(
@@ -113,13 +114,14 @@ class GUI:
         Returns:
             textboxes: a list containing all the generated textboxes.
         """
-        frames = self.pages[page]['frames']
+        frames, textboxes = (self.pages[page]['frames'],[])
         #Creation of textbox
-        textboxes=[]
         for i, frame in enumerate(frames):
             if page == 'creation_screen' and i == 1:
-                textbox = self.widget.textbox(frame)
-                strv = tk.StringVar(value = 'Enter name of project...')
+                textbox,strv = (
+                    self.widget.textbox(frame),
+                    tk.StringVar(value = 'Enter name of project...')
+                    )
                 textbox.configure(
                     font=('calibri', 25),
                     width=50,
@@ -150,12 +152,21 @@ class GUI:
                         width=4,
                         textvariable = strv
                         )
-                    strv.trace(
-                        "w",
-                        lambda *args,
-                        strv=strv:
-                        self.textbox_update(strv)
-                        )
+                    if textbox_i < 4:
+                        strv.trace(
+                            "w",
+                            lambda *args,
+                            strv=strv:
+                            self.textbox_update(strv)
+                            )
+                    else:
+                        strv.trace(
+                            "w",
+                            lambda *args,
+                            strv=strv,
+                            textbox_i=textbox_i:
+                            self.color_values(strv, (textbox_i-4)*2)
+                            )
                     textbox.place(
                         anchor='nw',
                         relx = 0.30,
@@ -258,7 +269,10 @@ class GUI:
             'frames' : tk.StringVar(value=1),
             'width' : tk.StringVar(value=40),
             'height' : tk.StringVar(value=15),
-            'fps' : tk.StringVar(value=12)
+            'fps' : tk.StringVar(value=12),
+            'red' : tk.StringVar(value=255),
+            'green' : tk.StringVar(value=255),
+            'blue' : tk.StringVar(value=255)
             }
         self.window.geometry(str(window_size*2)+'x'+str(window_size))
         self.pages['creation_screen']['main_frame'] = self.widget.frame(self.window)
@@ -289,22 +303,41 @@ class GUI:
             new_project = Project(name)
             if new_project.table:
                 self.project_options['table'] = self.reconstruct_table(new_project.table)
-                if new_project.table_height:
-                    self.cloud_options['height'].set(new_project.table_height)
-                if new_project.table_width:
-                    self.cloud_options['width'].set(new_project.table_width)
-                if new_project.frame_count:
-                    self.cloud_options['frames'].set(new_project.frame_count)
+                if new_project.table_options['height']:
+                    self.cloud_options['height'].set(new_project.table_options['height'])
+                if new_project.table_options['width']:
+                    self.cloud_options['width'].set(new_project.table_options['width'])
+                if new_project.table_options['frame_count']:
+                    self.cloud_options['frames'].set(new_project.table_options['frame_count'])
+                if new_project.fps:
+                    self.cloud_options['fps'].set(new_project.fps)
+                if new_project.color:
+                    self.cloud_options['red'].set(new_project.color['red'])
+                    self.cloud_options['green'].set(new_project.color['green'])
+                    self.cloud_options['blue'].set(new_project.color['blue'])
+
                 self.draw_cloud(self.project_options['table'])
             self.show('editor_screen')
             self.project_options['current_project'] = new_project
         else:
             project = self.project_options['current_project']
             project.table = self.project_options['table']
-            project.table_height,project.table_width,project.frame_count = (
+            (
+                project.table_options['height'],
+                project.table_options['width'],
+                project.table_options['frame_count'],
+                project.fps,
+                project.color
+                ) = (
                 len(self.project_options['table']),
                 len(self.project_options['table'][0]),
-                self.cloud_options['frames'].get()
+                self.cloud_options['frames'].get(),
+                self.cloud_options['fps'].get(),
+                {
+                    'red' : self.cloud_options['red'].get(),
+                    'green': self.cloud_options['green'].get(),
+                    'blue' : self.cloud_options['blue'].get()
+                    }
                 )
             project.save_project_data()
 
@@ -422,6 +455,66 @@ class GUI:
         strv.set(new_text)
         self.frame_update=True
 
+    def color_values(self, strv, color_index):
+        """This function validates and converts the RGB values into hexadecimal.
+
+        Args:
+            strv (_type_): The StringVariable that contains the input.
+            color_index (_type_): An index that determines
+            which part of the hexadecimal the value belongs to
+        """
+        print(color_index)
+        text = strv.get()
+        new_text=''
+        for i in text:
+            if i.isdigit():
+                new_text+=i
+        if len(new_text) == 0:
+            new_text='0'
+        if int(new_text)>255:
+            new_text = '255'
+        strv.set(new_text)
+        hex_color = hex(int(new_text)).replace('0x','')
+        print(hex_color)
+        if len(hex_color) == 1:
+            hex_color = '0'+hex_color
+        self.animation_options['color'] = (
+            self.animation_options['color'][:color_index+1]+
+            hex_color+
+            self.animation_options['color'][color_index+3:]
+            )
+        print(self.animation_options['color'])
+        self.frame_update=True
+        self.draw_cloud(self.project_options['table'])
+
+    def darken_color(self, color_code, level):
+        """This function darkens the specified color value depending on the specified level.
+
+        Args:
+            color_code (_type_): The color value to darken.
+            level (_type_): The lower level, the darker.
+
+        Returns:
+            color_code: The darkened color value.
+        """
+        red = int('0x'+color_code[1:3],16) - (4-level)*30
+        blue = int('0x'+color_code[3:5],16) - (4-level)*30
+        green = int('0x'+color_code[5:7],16) - (4-level)*30
+        red = max(red, 0)
+        blue = max(blue, 0)
+        green = max(green, 0)
+        red = hex(red).replace('0x', '')
+        blue = hex(blue).replace('0x', '')
+        green = hex(green).replace('0x', '')
+        if len(red) == 1:
+            red = '0'+red
+        if len(blue) == 1:
+            blue = '0'+blue
+        if len(green) == 1:
+            green = '0'+green
+        return '#'+red+blue+green
+
+
     def draw_cloud(self, table=None, cloud_tag='first'):
         """Generates a cloud using the Node class and draws it onto the previously generated canvas.
 
@@ -432,7 +525,11 @@ class GUI:
         """
         canvas, neighbor_color, self.animation_options['loading_text'], scale = (
             self.pages['editor_screen']['canvas'][-1],
-            {1: "#A9A9A9", 2 : "#D3D3D3", 3 : "#E5E4E2"},
+            {
+                1: self.darken_color(self.animation_options['color'], 1),
+                2 : self.darken_color(self.animation_options['color'], 2),
+                3 : self.darken_color(self.animation_options['color'], 3)
+                },
             None,
             [int(self.cloud_options['height'].get()),int(self.cloud_options['width'].get())]
             )
@@ -454,7 +551,7 @@ class GUI:
                 if not node:
                     continue
                 if len(node.neighbors) not in neighbor_color:
-                    cloud_color="white"
+                    cloud_color=self.animation_options['color']
                 else:
                     cloud_color=neighbor_color[len(node.neighbors)]
                 canvas.create_rectangle(

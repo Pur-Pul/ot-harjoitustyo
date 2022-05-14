@@ -14,10 +14,14 @@ class Project:
 
         self.name = name
         self.id = None
-        self.table_width = None
-        self.table_height = None
-        self.frame_count = None
+        self.table_options = {
+            'width' : None,
+            'height' : None,
+            'frame_count' : None
+            }
         self.table = None
+        self.fps = None
+        self.color = None
 
         self.create_tables()
         if initialize:
@@ -37,7 +41,11 @@ class Project:
         (id INTEGER PRIMARY KEY AUTOINCREMENT,
         table_width INTEGER,
         table_height INTEGER,
-        frame_count INTEGER)
+        frame_count INTEGER,
+        fps INTEGER,
+        red INTEGER,
+        green INTEGER,
+        blue INTEGER)
         ''')
         #self.cur.execute('''DROP TABLE IF EXISTS cloud''')
         self.cur.execute('''CREATE TABLE IF NOT EXISTS cloud
@@ -71,9 +79,22 @@ class Project:
         """
         self.cur.execute("""SELECT * FROM project_data WHERE id = ?""", (self.id,))
 
-        self.cur.execute("""INSERT OR REPLACE INTO project_data
-        (id, table_width, table_height, frame_count) VALUES (?,?,?,?)""",
-        (self.id, self.table_width, self.table_height, self.frame_count))
+        self.cur.execute(
+            """INSERT OR REPLACE INTO project_data
+            (id, table_width, table_height, frame_count, fps, red, green, blue)
+            VALUES (?,?,?,?,?,?,?,?)""",
+            #print(self.color)
+            (
+                self.id,
+                self.table_options['width'],
+                self.table_options['height'],
+                self.table_options['frame_count'],
+                self.fps,
+                self.color['red'],
+                self.color['green'],
+                self.color['blue']
+                )
+            )
 
         self.cur.execute("""SELECT * FROM cloud WHERE id = ?""", (self.id,))
         if self.cur.fetchone():
@@ -98,13 +119,15 @@ class Project:
         data = self.cur.execute("""SELECT * FROM project_data WHERE id=?""",
         (self.id,)).fetchone()
         if data:
-            self.table_width = data[1]
-            self.table_height = data[2]
-            self.frame_count = data[3]
+            self.table_options['width'] = data[1]
+            self.table_options['height'] = data[2]
+            self.table_options['frame_count'] = data[3]
+            self.fps = data[4]
+            self.color = {'red' : data[5], 'green' : data[6], 'blue' : data[7]}
 
             new_table = []
-            for _ in range(0, self.table_height):
-                new_table.append([None]*self.table_width)
+            for _ in range(0, self.table_options['height']):
+                new_table.append([None]*self.table_options['width'])
 
             rows = self.cur.execute("""SELECT * FROM cloud WHERE id=?""",
             (self.id,)).fetchall()
