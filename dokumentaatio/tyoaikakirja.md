@@ -15,4 +15,7 @@ Programming languange: Python
 | 05.5. | 1    | Implementation of changable options. |
 | 06.5. | 3    | Implementation of changable options. |
 | 08.5. | 2    | Optimization of animation. |
-| Total | 43   | - |
+| 12.5. | 2    | Optimization of animation. |
+| 13.5. | 2    | Optimization and tweaking of the generation algorithm. Added changable FPS. |
+| 14.5. | 5    | Optimization, cleanup, docstring and added the ability to open projects from the project list. |
+| Total | 52   | - |
