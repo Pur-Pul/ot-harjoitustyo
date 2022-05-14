@@ -12,7 +12,7 @@ Application is still under developement.
 
 ## Installation  
 [Lastest Release](https://github.com/Pur-Pul/ot-harjoitustyo/releases/tag/1.1.0)  
-
+Unzip and open directory in terminal.  
 Install requirements with:  
 ```bash
 poetry install
