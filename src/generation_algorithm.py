@@ -2,6 +2,9 @@ import random
 import sys
 #This class defines a signle node in the cloud to be generated. Each pixel is one node
 class Node:
+    """This class represents the nodes in a cloud.
+    Each node has a chance to generate another node depending on their position and randomness.
+    """
     def __init__(self, coords, table, parent = None, manual = False, rec = 1):
         """Assigns base values for the class variables.
 

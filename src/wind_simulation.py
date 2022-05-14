@@ -2,6 +2,9 @@ import copy
 from generation_algorithm import Node
 from generation_algorithm import print_table
 class WindSimulator:
+    """This class simulates the movement for every node in a table,
+    and creates a new table where the nodes have updated locations.
+    """
     def __init__(self, table):
         """initializes the old table and an empty new table
 

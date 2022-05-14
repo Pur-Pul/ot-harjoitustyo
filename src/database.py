@@ -1,5 +1,7 @@
 import sqlite3
 class Project:
+    """This class manages the data that is stored in the database.
+    """
     def __init__(self, name=None, initialize = True):
         """Initializes the base values for the class variables,
         connects to the database and calls create_tables and initial_save.
