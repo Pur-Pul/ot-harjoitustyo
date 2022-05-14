@@ -1,4 +1,15 @@
 # Basic functionality
+## Generating a cloud
+A cloud consists of nodes in a matrix. The nodes are recursively created, using randomness and distance to the middle of the table to determine if a new node is to be generated. 
+```mermaid
+sequenceDiagram
+GUI->>+Cloud: Node(root_coordinates, cloud_table)
+Cloud->>+Random: randrange(0,2)
+Random-->>-Cloud: integer
+Cloud-->>+Cloud: Node(new_root_coordinates, cloud_table)
+Cloud-->>-Cloud: updated_cloud_table
+Cloud-->>-GUI: final_cloud_table
+```
 ## Drawing and animating the clouds
 When the application is started, a cloud is immediately generated and drawn.  
 When the user clicks the "generate a new cloud" button, a new cloud is generated and drawn to replace the old.  
