@@ -11,7 +11,7 @@ Application is still under developement.
 [Architecture](dokumentaatio/arkkitehtuuri.md)
 
 ## Installation  
-[Lastest Release](https://github.com/Pur-Pul/ot-harjoitustyo/releases/tag/v1.1.0)  
+[Lastest Release](https://github.com/Pur-Pul/ot-harjoitustyo/releases/tag/v1.1.1)  
 Unzip and open directory in terminal.  
 Install requirements with:  
 ```bash
