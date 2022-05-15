@@ -34,3 +34,4 @@
   *The first time something is animated and the frames are being generated the animation plays more slowly*
 - Made it possible to open a project by clicking their labels in the recent projects tab.
 - Made it possible to change the color of the cloud by entering RGB values in the editor.
+- Name of project added as window title and project names are now sorted by their creation date.

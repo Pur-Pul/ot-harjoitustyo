@@ -27,7 +27,6 @@ class GUI:
         #animation options
         self.animation_options = {
             'canvas_frames' : ['first'],
-            'animating' : False,
             'loading_text' : None,
             'color' : '#ffffff'
         }
@@ -140,39 +139,42 @@ class GUI:
                     y=400
                     )
                 textboxes.append(textbox)
-            elif page == 'editor_screen' and i == 2:
-                option_textboxes = []
-                for option,value in self.cloud_options.items():
-                    option_textboxes.append([value, option])
-                for textbox_i, textbox_value in enumerate(option_textboxes):
-                    strv = textbox_value[0]
-                    textbox = self.widget.textbox(frame)
-                    textbox.configure(
-                        font=('calibri', 16),
-                        width=4,
-                        textvariable = strv
+            if not (page == 'editor_screen' and i == 2):
+                continue
+            option_textboxes = []
+            for option,value in self.cloud_options.items():
+                option_textboxes.append([value, option])
+            for textbox_i, textbox_value in enumerate(option_textboxes):
+                strv,textbox = (
+                    textbox_value[0],
+                    self.widget.textbox(frame)
+                    )
+                textbox.configure(
+                    font=('calibri', 16),
+                    width=4,
+                    textvariable = strv
+                    )
+                if textbox_i < 4:
+                    strv.trace(
+                        "w",
+                        lambda *args,
+                        strv=strv:
+                        self.textbox_update(strv)
                         )
-                    if textbox_i < 4:
-                        strv.trace(
-                            "w",
-                            lambda *args,
-                            strv=strv:
-                            self.textbox_update(strv)
-                            )
-                    else:
-                        strv.trace(
-                            "w",
-                            lambda *args,
-                            strv=strv,
-                            textbox_i=textbox_i:
-                            self.color_values(strv, (textbox_i-4)*2)
-                            )
-                    textbox.place(
-                        anchor='nw',
-                        relx = 0.30,
-                        rely = 0.05 +textbox_i/20
+                else:
+                    strv.trace(
+                        "w",
+                        lambda *args,
+                        strv=strv,
+                        textbox_i=textbox_i:
+                        self.color_values(strv, (textbox_i-4)*2)
                         )
-                    textboxes.append(textbox)
+                textbox.place(
+                    anchor='nw',
+                    relx = 0.30,
+                    rely = 0.05 +textbox_i/20
+                    )
+                textboxes.append(textbox)
         return textboxes
     def create_buttons(self, page):
         """Generates buttons for the specified page.
@@ -265,6 +267,7 @@ class GUI:
             _type_: _description_
         """
         self.window = tk.Tk()
+        self.window.title(string="Create / open a project")
         self.cloud_options = {
             'frames' : tk.StringVar(value=1),
             'width' : tk.StringVar(value=40),
@@ -300,21 +303,24 @@ class GUI:
             If no name is given, the function uses the stored project object. Defaults to None.
         """
         if name:
-            new_project = Project(name)
-            if new_project.table:
+            self.window.title(string=name)
+            new_project, colors = (
+                Project(name),
+                {'red', 'green', 'blue'}
+                )
+            if (
+                new_project.table and
+                new_project.table_options and
+                new_project.fps and
+                new_project.color
+                ):
                 self.project_options['table'] = self.reconstruct_table(new_project.table)
-                if new_project.table_options['height']:
-                    self.cloud_options['height'].set(new_project.table_options['height'])
-                if new_project.table_options['width']:
-                    self.cloud_options['width'].set(new_project.table_options['width'])
-                if new_project.table_options['frame_count']:
-                    self.cloud_options['frames'].set(new_project.table_options['frame_count'])
-                if new_project.fps:
-                    self.cloud_options['fps'].set(new_project.fps)
-                if new_project.color:
-                    self.cloud_options['red'].set(new_project.color['red'])
-                    self.cloud_options['green'].set(new_project.color['green'])
-                    self.cloud_options['blue'].set(new_project.color['blue'])
+                self.cloud_options['height'].set(new_project.table_options['height'])
+                self.cloud_options['width'].set(new_project.table_options['width'])
+                self.cloud_options['frames'].set(new_project.table_options['frame_count'])
+                self.cloud_options['fps'].set(new_project.fps)
+                for key in colors:
+                    self.cloud_options[key].set(new_project.color[key])
 
                 self.draw_cloud(self.project_options['table'])
             self.show('editor_screen')
@@ -400,12 +406,16 @@ class GUI:
         Args:
             frame_count: the number of frames to be used in the animation.
         """
-        if self.animation_options['animating']:
-            return
-        for textbox in self.pages['editor_screen']['textboxes']:
-            textbox.configure(state='disabled')
-        self.animation_options['animating'], frame_1, canvas, canvas_frames = (
-            True,
+        for i in range(0,len(self.pages['editor_screen']['textboxes'])):
+            (
+                self.pages['editor_screen']['textboxes'][-i]['state'],
+                self.pages['editor_screen']['buttons'][min(
+                    i,
+                    len(self.pages['editor_screen']['buttons'])-1
+                    )
+                ]['state']
+                ) = ('disabled','disabled')
+        frame_1, canvas, canvas_frames = (
             copy.copy(self.project_options['table']),
             self.pages['editor_screen']['canvas'][-1],
             self.animation_options['canvas_frames']
@@ -414,10 +424,8 @@ class GUI:
             canvas.delete(canvas_frames.pop())
 
         for i in range(0, frame_count):
-            new_table = []
             if self.frame_update:
-                for row in frame_1:
-                    new_table.append(copy.copy(row))
+                new_table = [copy.copy(row) for row in frame_1]
                 frame_1 = WindSimulator(new_table).simulate()
                 self.draw_cloud(frame_1,'cloud_'+str(i))
                 canvas_frames.append('cloud_'+str(i))
@@ -433,9 +441,16 @@ class GUI:
         canvas.itemconfigure('all', state='hidden')
         canvas.itemconfigure(canvas_frames[0], state='normal')
         self.window.update()
-        self.animation_options['animating'], self.frame_update = (False, False)
-        for textbox in self.pages['editor_screen']['textboxes']:
-            textbox.configure(state='normal')
+        for i in range(0,len(self.pages['editor_screen']['textboxes'])):
+            (
+                self.pages['editor_screen']['textboxes'][-i]['state'],
+                self.pages['editor_screen']['buttons'][min(
+                    i,
+                    len(self.pages['editor_screen']['buttons'])-1
+                    )
+                ]['state']
+                ) = ('normal','normal')
+        self.frame_update=False
 
     def textbox_update(self, strv):
         """Function that validates the input written into the textboxes.
@@ -463,7 +478,6 @@ class GUI:
             color_index (_type_): An index that determines
             which part of the hexadecimal the value belongs to
         """
-        print(color_index)
         text = strv.get()
         new_text=''
         for i in text:
@@ -475,7 +489,6 @@ class GUI:
             new_text = '255'
         strv.set(new_text)
         hex_color = hex(int(new_text)).replace('0x','')
-        print(hex_color)
         if len(hex_color) == 1:
             hex_color = '0'+hex_color
         self.animation_options['color'] = (
@@ -483,7 +496,6 @@ class GUI:
             hex_color+
             self.animation_options['color'][color_index+3:]
             )
-        print(self.animation_options['color'])
         self.frame_update=True
         self.draw_cloud(self.project_options['table'])
 

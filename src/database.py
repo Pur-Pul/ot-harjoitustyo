@@ -119,9 +119,11 @@ class Project:
         data = self.cur.execute("""SELECT * FROM project_data WHERE id=?""",
         (self.id,)).fetchone()
         if data:
-            self.table_options['width'] = data[1]
-            self.table_options['height'] = data[2]
-            self.table_options['frame_count'] = data[3]
+            self.table_options = {
+                'width' : data[1],
+                'height' : data[2],
+                'frame_count' : data[3]
+                }
             self.fps = data[4]
             self.color = {'red' : data[5], 'green' : data[6], 'blue' : data[7]}
 
@@ -147,7 +149,7 @@ def get_project_names():
     Project(initialize=False)
     conn = sqlite3.connect('project_data.db')
     cur = conn.cursor()
-    project_names = cur.execute("""SELECT name FROM projects""").fetchall()
+    project_names = cur.execute("""SELECT name FROM projects ORDER BY time DESC""").fetchall()
     if project_names:
         for name_i, name in enumerate(project_names):
             project_names[name_i] = name[0]

@@ -17,5 +17,6 @@ Programming languange: Python
 | 08.5. | 2    | Optimization of animation. |
 | 12.5. | 2    | Optimization of animation. |
 | 13.5. | 2    | Optimization and tweaking of the generation algorithm. Added changable FPS. |
-| 14.5. | 7    | Optimization, cleanup, docstring, added the ability to open projects from the project list. Added changable color values for the cloud |
-| Total | 54   | - |
+| 14.5. | 7    | Optimization, cleanup, docstring, added the ability to open projects from the project list. Added changable color values for the cloud. |
+| 15.5. | 2    | Cleanup and finalization. Added name of project as window title. |
+| Total | 56   | - |
